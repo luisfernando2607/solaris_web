@@ -1,0 +1,44 @@
+<header class="header">
+  <div class="header-left">
+    <span class="page-env">Desarrollo</span>
+  </div>
+
+  <div class="header-right">
+
+    <!-- Theme toggle -->
+    <app-theme-toggle />
+
+    <!-- Notificaciones -->
+    <button class="icon-btn" title="Notificaciones">
+      <i class="pi pi-bell"></i>
+      <span class="badge"></span>
+    </button>
+
+    <!-- Usuario -->
+    <div class="user-menu" (click)="toggleDropdown()">
+      <div class="user-avatar">{{ usuario()?.nombreCompleto?.charAt(0) ?? 'U' }}</div>
+      <div class="user-details">
+        <span class="user-name">{{ usuario()?.nombreCompleto }}</span>
+        <span class="user-empresa">{{ usuario()?.empresaNombre }}</span>
+      </div>
+      <i class="pi pi-chevron-down chevron" [class.rotated]="dropdownOpen()"></i>
+    </div>
+
+    @if (dropdownOpen()) {
+      <div class="dropdown" (click)="$event.stopPropagation()">
+        <div class="dropdown-user">
+          <div class="d-avatar">{{ usuario()?.nombreCompleto?.charAt(0) }}</div>
+          <div>
+            <div class="d-name">{{ usuario()?.nombreCompleto }}</div>
+            <div class="d-email">{{ usuario()?.email }}</div>
+          </div>
+        </div>
+        <hr class="dropdown-divider">
+        <button class="dropdown-item danger" (click)="logout()">
+          <i class="pi pi-sign-out"></i>
+          <span>Cerrar sesión</span>
+        </button>
+      </div>
+    }
+  </div>
+</header>

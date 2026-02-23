@@ -1,0 +1,71 @@
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: .25rem 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+
+  label {
+    font-size: .76rem;
+    font-weight: 500;
+    color: var(--text-soft);
+    letter-spacing: .02em;
+  }
+
+  ::ng-deep .p-inputtext {
+    background: var(--surface2) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+    border-radius: 8px !important;
+    font-size: .85rem !important;
+    &:focus { border-color: var(--primary) !important; }
+  }
+
+  ::ng-deep .p-password,
+  ::ng-deep .p-multiselect {
+    width: 100% !important;
+  }
+}
+
+.err {
+  color: #ef4444;
+  font-size: .7rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: .75rem;
+  padding-top: .5rem;
+}
+
+::ng-deep .usuario-dialog {
+  .p-dialog-header {
+    background: var(--surface) !important;
+    border-bottom: 1px solid var(--border) !important;
+    color: var(--text) !important;
+    border-radius: 14px 14px 0 0 !important;
+  }
+  .p-dialog-content {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    padding: 1.25rem 1.5rem !important;
+  }
+  .p-dialog-footer {
+    background: var(--surface) !important;
+    border-top: 1px solid var(--border) !important;
+    border-radius: 0 0 14px 14px !important;
+    padding: .85rem 1.5rem !important;
+  }
+}

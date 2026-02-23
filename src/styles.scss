@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "primeicons/primeicons.css";
+
+/* ══════════════════════════════════════
+   VARIABLES — DARK MODE (default)
+══════════════════════════════════════ */
+:root,
+[data-theme="dark"] {
+  --bg:           #07090f;
+  --surface:      #0d1117;
+  --surface2:     #111820;
+  --border:       #1e2a3a;
+  --border2:      #334155;
+  --text:         #e2e8f0;
+  --text-muted:   #64748b;
+  --text-soft:    #94a3b8;
+  --primary:      #3b82f6;
+  --primary-bg:   rgba(59,130,246,.12);
+  --shadow:       rgba(0,0,0,.5);
+}
+
+/* ══════════════════════════════════════
+   VARIABLES — LIGHT MODE
+══════════════════════════════════════ */
+[data-theme="light"] {
+  --bg:           #f1f5f9;
+  --surface:      #ffffff;
+  --surface2:     #f8fafc;
+  --border:       #e2e8f0;
+  --border2:      #cbd5e1;
+  --text:         #0f172a;
+  --text-muted:   #64748b;
+  --text-soft:    #475569;
+  --primary:      #2563eb;
+  --primary-bg:   rgba(37,99,235,.1);
+  --shadow:       rgba(0,0,0,.12);
+}
+
+/* ══════════════════════════════════════
+   BASE
+══════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color .3s ease, color .3s ease;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }

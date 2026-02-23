@@ -1,0 +1,85 @@
+<div class="dashboard">
+
+  <!-- Bienvenida -->
+  <div class="welcome">
+    <div class="welcome-text">
+      <h1>Bienvenido, <span class="name">{{ usuario()?.nombreCompleto?.split(' ')?.[0] ?? 'Usuario' }}</span> 👋</h1>
+      <p>{{ usuario()?.empresaNombre }} · {{ usuario()?.sucursalNombre }}</p>
+    </div>
+    <div class="welcome-badges">
+      @for (rol of (usuario()?.roles ?? []); track rol) {
+        <span class="role-badge">{{ rol }}</span>
+      }
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    @for (stat of stats; track stat.label) {
+      <div class="stat-card">
+        <div class="stat-icon" [style.background]="stat.color + '20'" [style.color]="stat.color">
+          <i [class]="stat.icon"></i>
+        </div>
+        <div class="stat-info">
+          <div class="stat-value">{{ stat.value }}</div>
+          <div class="stat-label">{{ stat.label }}</div>
+        </div>
+        @if (stat.trend) {
+          <div class="stat-trend">{{ stat.trend }}</div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Accesos rápidos -->
+  <div class="section">
+    <h2 class="section-title">Accesos rápidos</h2>
+    <div class="quick-grid">
+      @for (item of accesosRapidos; track item.label) {
+        @if (tienePermiso(item.permiso)) {
+          <a class="quick-card" [routerLink]="item.route">
+            <div class="quick-icon" [style.background]="item.color + '15'" [style.color]="item.color">
+              <i [class]="item.icon"></i>
+            </div>
+            <span>{{ item.label }}</span>
+            <i class="pi pi-arrow-right arrow"></i>
+          </a>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Info sesión -->
+  <div class="section">
+    <h2 class="section-title">Información de sesión</h2>
+    <div class="session-card">
+      <div class="session-row">
+        <span class="session-label">Email</span>
+        <span class="session-val">{{ usuario()?.email }}</span>
+      </div>
+      <div class="session-row">
+        <span class="session-label">Empresa</span>
+        <span class="session-val">{{ usuario()?.empresaNombre }}</span>
+      </div>
+      <div class="session-row">
+        <span class="session-label">Sucursal</span>
+        <span class="session-val">{{ usuario()?.sucursalNombre }}</span>
+      </div>
+      <div class="session-row">
+        <span class="session-label">Permisos</span>
+        <span class="session-val">{{ usuario()?.permisos?.length ?? 0 }} permisos activos</span>
+      </div>
+      <div class="session-row">
+        <span class="session-label">2FA</span>
+        <span class="session-val">
+          @if (usuario()?.twoFactorHabilitado) {
+            <span class="badge green">Habilitado</span>
+          } @else {
+            <span class="badge gray">Deshabilitado</span>
+          }
+        </span>
+      </div>
+    </div>
+  </div>
+
+</div>

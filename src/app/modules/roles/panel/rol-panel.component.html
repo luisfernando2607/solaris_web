@@ -1,0 +1,219 @@
+<p-toast position="top-right" />
+
+@if (visible()) {
+  <div class="panel-backdrop" (click)="cerrar()"></div>
+}
+
+<div class="side-panel" [class.open]="visible()">
+
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"
+           [style.background]="colorActual + '22'"
+           [style.border-color]="colorActual + '44'">
+        <i [class]="iconoActual" [style.color]="colorActual"></i>
+      </div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">
+          {{ esEdicion() ? 'Modificando: ' + rol()?.nombre : 'Completa los datos del rol' }}
+        </p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <!-- Body -->
+  <div class="panel-body">
+
+    @if (error()) {
+      <div class="panel-error">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="form" class="panel-form">
+
+      <!-- Identificación -->
+      <div class="form-section">
+        <div class="section-label">
+          <i class="pi pi-id-card"></i>
+          Identificación
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Código <span class="req">*</span></label>
+            <input pInputText formControlName="codigo"
+                   placeholder="ADMIN" class="mono-input"
+                   (input)="onCodigoInput($event)" />
+            @if (invalid('codigo')) {
+              <small class="err">Solo mayúsculas, números y guión bajo</small>
+            }
+          </div>
+          <div class="field">
+            <label>Nivel (0-100) <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="nivel"
+                   placeholder="10" min="0" max="100" />
+            <small class="field-hint">Mayor nivel = más privilegios</small>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Nombre <span class="req">*</span></label>
+          <input pInputText formControlName="nombre" placeholder="Administrador" />
+          @if (invalid('nombre')) {
+            <small class="err">Nombre requerido (mín. 2 caracteres)</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>Descripción</label>
+          <textarea pTextarea formControlName="descripcion" rows="2"
+                    placeholder="Describe las responsabilidades de este rol..."
+                    style="resize:none; width:100%"></textarea>
+        </div>
+      </div>
+
+      <!-- Apariencia -->
+      <div class="form-section">
+        <div class="section-label">
+          <i class="pi pi-palette"></i>
+          Apariencia
+        </div>
+
+        <div class="field">
+          <label>Color del rol</label>
+          <div class="color-picker">
+            @for (c of colores; track c) {
+              <button type="button" class="color-dot"
+                      [style.background]="c"
+                      [class.selected]="colorActual === c"
+                      (click)="setColor(c)"
+                      [pTooltip]="c" tooltipPosition="top">
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Ícono</label>
+          <div class="icon-picker">
+            @for (ic of iconos; track ic) {
+              <button type="button" class="icon-btn-pick"
+                      [class.selected]="iconoActual === ic"
+                      (click)="setIcono(ic)"
+                      [pTooltip]="ic" tooltipPosition="top">
+                <i [class]="ic"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="rol-preview">
+          <div class="preview-badge"
+               [style.background]="colorActual + '22'"
+               [style.border-color]="colorActual + '55'"
+               [style.color]="colorActual">
+            <i [class]="iconoActual"></i>
+            {{ nombreActual || 'Nombre del rol' }}
+          </div>
+          <span class="preview-label">Vista previa</span>
+        </div>
+      </div>
+
+      <!-- Permisos -->
+      <div class="form-section">
+        <div class="section-label">
+          <i class="pi pi-key"></i>
+          Permisos
+          <span class="permisos-count">{{ totalSeleccionados() }} seleccionados</span>
+          <div class="permisos-actions">
+            <button type="button" class="perm-action-btn" (click)="seleccionarTodos()">Todos</button>
+            <button type="button" class="perm-action-btn" (click)="limpiarTodos()">Ninguno</button>
+          </div>
+        </div>
+
+        @if (cargandoPermisos()) {
+          <div class="permisos-loading">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>Cargando permisos...</span>
+          </div>
+        } @else if (modulos().length === 0) {
+          <div class="permisos-empty">
+            <span>No se encontraron permisos configurados</span>
+          </div>
+        } @else {
+          <div class="permisos-table-wrap">
+            <table class="permisos-table">
+              <thead>
+                <tr>
+                  <th class="th-modulo">Módulo / Permiso</th>
+                  <th class="th-check">
+                    <i class="pi pi-check-circle" pTooltip="Seleccionar" tooltipPosition="top"></i>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (modulo of modulos(); track modulo.id) {
+                  <tr class="row-modulo">
+                    <td class="td-modulo-name">
+                      <div class="modulo-cell">
+                        <i [class]="modulo.icono ?? 'pi pi-folder'" class="modulo-icon"></i>
+                        <span>{{ modulo.nombre }}</span>
+                        <span class="modulo-count">
+                          {{ seleccionadosEnModulo(modulo) }}/{{ modulo.permisos.length }}
+                        </span>
+                      </div>
+                    </td>
+                    <td class="td-check">
+                      <p-checkbox
+                        [binary]="true"
+                        [ngModel]="moduloCompleto(modulo)"
+                        [ngModelOptions]="{standalone: true}"
+                        (onChange)="toggleModulo(modulo)"
+                      />
+                    </td>
+                  </tr>
+                  @for (permiso of modulo.permisos; track permiso.id) {
+                    <tr class="row-permiso">
+                      <td class="td-permiso-name">
+                        <div class="permiso-cell">
+                          <span class="permiso-nombre">{{ permiso.nombre }}</span>
+                          <span class="permiso-codigo">{{ permiso.codigo }}</span>
+                        </div>
+                      </td>
+                      <td class="td-check">
+                        <p-checkbox
+                          [binary]="true"
+                          [ngModel]="tienePermiso(permiso.id)"
+                          [ngModelOptions]="{standalone: true}"
+                          (onChange)="togglePermiso(permiso.id)"
+                        />
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Footer -->
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true"
+              [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button [label]="esEdicion() ? 'Guardar cambios' : 'Crear rol'"
+              [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'"
+              [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+
+</div>

@@ -1,0 +1,179 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="page">
+
+  <!-- Header de página -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Usuarios</h1>
+      <p class="page-sub">{{ total() }} usuario{{ total() !== 1 ? 's' : '' }} en el sistema</p>
+    </div>
+    <p-button
+      label="Nuevo usuario"
+      icon="pi pi-plus"
+      (onClick)="abrirCrear()"
+    />
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Buscar por nombre, email o empresa..."
+        [(ngModel)]="busqueda"
+        [ngModel]="busqueda()"
+        (ngModelChange)="busqueda.set($event)"
+      />
+      @if (busqueda()) {
+        <button class="search-clear" (click)="busqueda.set('')">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+    </div>
+    <p-select
+      [options]="estadoOpciones"
+      [ngModel]="estadoFiltro()"
+      (ngModelChange)="estadoFiltro.set($event)"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Estado"
+      styleClass="filter-select"
+    />
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-card">
+    @if (cargando()) {
+      <div class="table-loading">
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+        <p>Cargando usuarios...</p>
+      </div>
+    } @else if (usuariosFiltrados().length === 0) {
+      <div class="table-empty">
+        <i class="pi pi-users"></i>
+        <p>No se encontraron usuarios</p>
+        @if (busqueda()) {
+          <small>Intenta con otro término de búsqueda</small>
+        }
+      </div>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Email</th>
+            <th>Empresa</th>
+            <th>Roles</th>
+            <th>Estado</th>
+            <th>Último acceso</th>
+            <th class="col-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of usuariosFiltrados(); track u.id) {
+            <tr class="data-row">
+              <!-- Avatar + nombre -->
+              <td>
+                <div class="user-cell">
+                  <div class="avatar">{{ iniciales(u.nombreCompleto) }}</div>
+                  <div class="user-info">
+                    <span class="user-name">{{ u.nombreCompleto }}</span>
+                    <span class="user-id">#{{ u.id }}</span>
+                  </div>
+                </div>
+              </td>
+              <!-- Email -->
+              <td>
+                <span class="mono">{{ u.email }}</span>
+              </td>
+              <!-- Empresa -->
+              <td>
+                <span class="text-soft">{{ u.empresaNombre ?? '—' }}</span>
+              </td>
+              <!-- Roles -->
+              <td>
+                <div class="roles-wrap">
+                  @for (rol of (u.roles ?? []); track rol) {
+                    <span class="role-chip">{{ rol }}</span>
+                  }
+                  @if (!u.roles?.length) {
+                    <span class="text-muted">Sin rol</span>
+                  }
+                </div>
+              </td>
+              <!-- Estado -->
+              <td>
+                <p-tag
+                  [value]="etiquetaEstado(u.estado)"
+                  [severity]="severidadEstado(u.estado)"
+                />
+              </td>
+              <!-- Último acceso -->
+              <td>
+                <span class="mono text-muted">
+                  {{ u.ultimoAcceso ? (u.ultimoAcceso | date:'dd/MM/yy HH:mm') : '—' }}
+                </span>
+              </td>
+              <!-- Acciones -->
+              <td class="col-actions">
+                <div class="actions-wrap">
+                  <button
+                    class="action-btn edit"
+                    (click)="abrirEditar(u.id)"
+                    pTooltip="Editar" tooltipPosition="top"
+                  >
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button
+                    class="action-btn"
+                    [class.activate]="u.estado !== 1"
+                    [class.deactivate]="u.estado === 1"
+                    (click)="toggleEstado(u)"
+                    [pTooltip]="u.estado === 1 ? 'Desactivar' : 'Activar'"
+                    tooltipPosition="top"
+                  >
+                    <i [class]="u.estado === 1 ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                  </button>
+                  @if (u.estado !== 2) {
+                    <button
+                      class="action-btn lock"
+                      (click)="bloquear(u)"
+                      pTooltip="Bloquear" tooltipPosition="top"
+                    >
+                      <i class="pi pi-lock"></i>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <!-- Footer de tabla -->
+      <div class="table-footer">
+        <span class="table-count">
+          Mostrando {{ usuariosFiltrados().length }} de {{ total() }} usuarios
+        </span>
+      </div>
+    }
+  </div>
+
+</div>
+
+<!-- Modal -->
+<app-usuario-panel
+  [visible]="panelVisible()"
+  [usuario]="usuarioEdicion()"
+  (onCerrar)="cerrarPanel()"
+  (onGuardado)="onGuardado()"
+/>

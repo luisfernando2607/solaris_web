@@ -1,0 +1,294 @@
+<p-toast position="top-right" />
+
+@if (visible()) {
+  <div class="panel-backdrop" (click)="cerrar()"></div>
+}
+
+<div class="side-panel" [class.open]="visible()">
+
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon">
+        <i class="pi pi-building"></i>
+      </div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">
+          {{ esEdicion() ? razonSocialActual : 'Completa los datos de la empresa' }}
+        </p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="panel-tabs">
+    <button class="tab-btn" [class.active]="tabActiva() === 'datos'" (click)="tabActiva.set('datos')">
+      <i class="pi pi-info-circle"></i> Datos
+    </button>
+    @if (esEdicion()) {
+      <button class="tab-btn" [class.active]="tabActiva() === 'sucursales'" (click)="tabActiva.set('sucursales')">
+        <i class="pi pi-sitemap"></i> Sucursales
+        <span class="tab-badge">{{ sucursales().length }}</span>
+      </button>
+    }
+  </div>
+
+  <!-- Body -->
+  <div class="panel-body">
+
+    @if (error()) {
+      <div class="panel-error">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <!-- Tab: Datos -->
+    @if (tabActiva() === 'datos') {
+      <form [formGroup]="form" class="panel-form">
+
+        <!-- Identificación -->
+        <div class="form-section">
+          <div class="section-label"><i class="pi pi-id-card"></i> Identificación</div>
+
+          <div class="form-row-3">
+            <div class="field">
+              <label>Código <span class="req">*</span></label>
+              <input pInputText formControlName="codigo" placeholder="EMP001"
+                     class="mono-input" (input)="onCodigoInput($event)" />
+              @if (invalid('codigo')) { <small class="err">Solo mayúsculas, números, guión</small> }
+            </div>
+            <div class="field col-2">
+              <label>Razón Social <span class="req">*</span></label>
+              <input pInputText formControlName="razonSocial" placeholder="Empresa S.A." />
+              @if (invalid('razonSocial')) { <small class="err">Requerido (mín. 3 caracteres)</small> }
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Nombre Comercial</label>
+            <input pInputText formControlName="nombreComercial" placeholder="Nombre corto o marca" />
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Tipo Identificación <span class="req">*</span></label>
+              <p-select formControlName="tipoIdentificacion"
+                        [options]="tiposId" optionLabel="label" optionValue="value"
+                        placeholder="Seleccionar" styleClass="w-full" />
+            </div>
+            <div class="field">
+              <label>Número <span class="req">*</span></label>
+              <input pInputText formControlName="numeroIdentificacion" placeholder="0999999999001" class="mono-input" />
+              @if (invalid('numeroIdentificacion')) { <small class="err">Requerido</small> }
+            </div>
+          </div>
+        </div>
+
+        <!-- Contacto -->
+        <div class="form-section">
+          <div class="section-label"><i class="pi pi-phone"></i> Contacto</div>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Email</label>
+              <input pInputText formControlName="email" placeholder="contacto@empresa.com" type="email" />
+              @if (invalid('email')) { <small class="err">Email inválido</small> }
+            </div>
+            <div class="field">
+              <label>Teléfono</label>
+              <input pInputText formControlName="telefono" placeholder="+593-4-1234567" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Dirección Fiscal</label>
+            <textarea pTextarea formControlName="direccionFiscal" rows="2"
+                      placeholder="Av. Principal 123, Ciudad, País"
+                      style="resize:none; width:100%"></textarea>
+          </div>
+
+          <div class="field">
+            <label>Página Web</label>
+            <input pInputText formControlName="paginaWeb" placeholder="https://www.empresa.com" />
+          </div>
+        </div>
+
+        <!-- Plan y configuración -->
+        <div class="form-section">
+          <div class="section-label"><i class="pi pi-cog"></i> Plan y Configuración</div>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Plan <span class="req">*</span></label>
+              <p-select formControlName="planContratado"
+                        [options]="planes" optionLabel="label" optionValue="value"
+                        placeholder="Seleccionar" styleClass="w-full" />
+            </div>
+            <div class="field">
+              <label>Máx. Usuarios <span class="req">*</span></label>
+              <input pInputText type="number" formControlName="maxUsuarios"
+                     placeholder="5" min="1" />
+              @if (invalid('maxUsuarios')) { <small class="err">Mínimo 1 usuario</small> }
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label>Inicio Contrato <span class="req">*</span></label>
+              <input pInputText type="date" formControlName="fechaInicioContrato" />
+              @if (invalid('fechaInicioContrato')) { <small class="err">Requerido</small> }
+            </div>
+            <div class="field">
+              <label>Zona Horaria <span class="req">*</span></label>
+              <p-select formControlName="zonaHoraria"
+                        [options]="zonasHorarias" optionLabel="label" optionValue="value"
+                        placeholder="Seleccionar" styleClass="w-full" />
+            </div>
+          </div>
+
+          <!-- Preview plan -->
+          <div class="plan-preview">
+            <span class="plan-badge"
+                  [style.background]="planColor[planActual] + '22'"
+                  [style.border-color]="planColor[planActual] + '55'"
+                  [style.color]="planColor[planActual]">
+              <i class="pi pi-star"></i>
+              {{ planLabel(planActual) }}
+            </span>
+            <span class="plan-hint">{{ form.get('maxUsuarios')?.value }} usuarios máx.</span>
+          </div>
+        </div>
+
+      </form>
+    }
+
+    <!-- Tab: Sucursales -->
+    @if (tabActiva() === 'sucursales') {
+      <div class="sucursales-tab">
+
+        <div class="suc-header">
+          <span class="suc-title">{{ sucursales().length }} sucursal{{ sucursales().length !== 1 ? 'es' : '' }}</span>
+          @if (!sucursalForm()) {
+            <button class="btn-add-suc" (click)="abrirNuevaSucursal()">
+              <i class="pi pi-plus"></i> Nueva
+            </button>
+          }
+        </div>
+
+        <!-- Mini-formulario sucursal -->
+        @if (sucursalForm()) {
+          <div class="suc-form-card">
+            <div class="suc-form-header">
+              <span>{{ sucursalEdicion() ? 'Editar sucursal' : 'Nueva sucursal' }}</span>
+              <button class="close-mini" (click)="sucursalForm.set(false)">
+                <i class="pi pi-times"></i>
+              </button>
+            </div>
+            <form [formGroup]="sForm" class="suc-form-body">
+              <div class="form-row">
+                <div class="field">
+                  <label>Código <span class="req">*</span></label>
+                  <input pInputText formControlName="codigo" placeholder="SUC001" class="mono-input" />
+                  @if (sInvalid('codigo')) { <small class="err">Requerido</small> }
+                </div>
+                <div class="field">
+                  <label>Nombre <span class="req">*</span></label>
+                  <input pInputText formControlName="nombre" placeholder="Matriz" />
+                  @if (sInvalid('nombre')) { <small class="err">Requerido</small> }
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="field">
+                  <label>Teléfono</label>
+                  <input pInputText formControlName="telefono" placeholder="+593..." />
+                </div>
+                <div class="field">
+                  <label>Email</label>
+                  <input pInputText formControlName="email" placeholder="suc@empresa.com" />
+                </div>
+              </div>
+              <div class="field">
+                <label>Dirección</label>
+                <input pInputText formControlName="direccion" placeholder="Av. Principal 123" />
+              </div>
+              <div class="field-check">
+                <input type="checkbox" formControlName="esPrincipal" id="esPrincipal" />
+                <label for="esPrincipal">Es sucursal principal</label>
+              </div>
+              <div class="suc-form-footer">
+                <p-button label="Cancelar" severity="secondary" [outlined]="true" size="small"
+                          (onClick)="sucursalForm.set(false)" />
+                <p-button [label]="sucursalEdicion() ? 'Guardar' : 'Crear'"
+                          size="small" [loading]="guardandoSuc()"
+                          (onClick)="guardarSucursal()" />
+              </div>
+            </form>
+          </div>
+        }
+
+        <!-- Lista sucursales -->
+        @if (cargandoSuc()) {
+          <div class="suc-loading">
+            <i class="pi pi-spin pi-spinner"></i> Cargando...
+          </div>
+        } @else if (sucursales().length === 0 && !sucursalForm()) {
+          <div class="suc-empty">
+            <i class="pi pi-sitemap"></i>
+            <p>No hay sucursales registradas</p>
+          </div>
+        } @else {
+          <div class="suc-list">
+            @for (s of sucursales(); track s.id) {
+              <div class="suc-item" [class.principal]="s.esPrincipal">
+                <div class="suc-info">
+                  <div class="suc-nombre">
+                    {{ s.nombre }}
+                    @if (s.esPrincipal) {
+                      <span class="badge-principal">Principal</span>
+                    }
+                  </div>
+                  <div class="suc-codigo">{{ s.codigo }}</div>
+                  @if (s.direccion) { <div class="suc-dir">{{ s.direccion }}</div> }
+                </div>
+                <div class="suc-actions">
+                  <button class="suc-btn" (click)="abrirEditarSucursal(s)"
+                          pTooltip="Editar" tooltipPosition="left">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="suc-btn danger" (click)="eliminarSucursal(s)"
+                          [disabled]="s.esPrincipal"
+                          pTooltip="Eliminar" tooltipPosition="left">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+  </div>
+
+  <!-- Footer -->
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true"
+              [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    @if (tabActiva() === 'datos') {
+      <p-button [label]="esEdicion() ? 'Guardar cambios' : 'Crear empresa'"
+                [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'"
+                [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+    }
+    @if (tabActiva() === 'sucursales') {
+      <p-button label="Nueva sucursal" icon="pi pi-plus"
+                severity="secondary" [outlined]="true"
+                (onClick)="abrirNuevaSucursal()" styleClass="flex-1" />
+    }
+  </div>
+
+</div>

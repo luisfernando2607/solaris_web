@@ -1,0 +1,144 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Empresas</h1>
+      <p class="page-sub">{{ empresas().length }} empresa{{ empresas().length !== 1 ? 's' : '' }} registradas</p>
+    </div>
+    <p-button label="Nueva empresa" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input"
+             placeholder="Buscar por nombre, código o RUC..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) {
+        <button class="search-clear" (click)="busqueda.set('')">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+    </div>
+    <div class="estado-filters">
+      @for (f of estadosFiltro; track f.label) {
+        <button class="filter-chip"
+                [class.active]="filtroEstado() === f.value"
+                (click)="filtroEstado.set(f.value)">
+          {{ f.label }}
+        </button>
+      }
+    </div>
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Cargando empresas...</p>
+    </div>
+  } @else if (empresasFiltradas().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-building"></i>
+      <p>No se encontraron empresas</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Empresa</th>
+            <th>Identificación</th>
+            <th>Plan</th>
+            <th>Usuarios</th>
+            <th>Estado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (emp of empresasFiltradas(); track emp.id) {
+            <tr>
+              <td>
+                <div class="empresa-cell">
+                  <div class="emp-avatar">{{ emp.razonSocial[0] }}</div>
+                  <div>
+                    <div class="emp-nombre">{{ emp.razonSocial }}</div>
+                    @if (emp.nombreComercial) {
+                      <div class="emp-comercial">{{ emp.nombreComercial }}</div>
+                    }
+                    <code class="emp-codigo">{{ emp.codigo }}</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="id-cell">
+                  <span class="id-tipo">{{ emp.tipoIdentificacion }}</span>
+                  <code class="id-num">{{ emp.numeroIdentificacion }}</code>
+                </div>
+              </td>
+              <td>
+                <span class="plan-chip"
+                      [style.background]="planColor[emp.planContratado] + '1a'"
+                      [style.border-color]="planColor[emp.planContratado] + '44'"
+                      [style.color]="planColor[emp.planContratado]">
+                  {{ emp.planContratado }}
+                </span>
+              </td>
+              <td>
+                <div class="usuarios-cell">
+                  <span class="mono">{{ emp.totalUsuarios ?? 0 }}/{{ emp.maxUsuarios }}</span>
+                  <div class="usr-bar">
+                    <div class="usr-fill"
+                         [style.width.%]="((emp.totalUsuarios ?? 0) / emp.maxUsuarios) * 100">
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="estado-dot"
+                      [style.background]="estadoColor(emp.estado) + '1a'"
+                      [style.border-color]="estadoColor(emp.estado) + '44'"
+                      [style.color]="estadoColor(emp.estado)">
+                  <span class="dot" [style.background]="estadoColor(emp.estado)"></span>
+                  {{ estadoLabel(emp.estado) }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(emp)"
+                          pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="act-btn" (click)="toggleActivo(emp)"
+                          [pTooltip]="emp.activo ? 'Desactivar' : 'Activar'" tooltipPosition="top">
+                    <i [class]="emp.activo ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                  </button>
+                  <button class="act-btn danger" (click)="eliminar(emp)"
+                          pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      Mostrando {{ empresasFiltradas().length }} de {{ empresas().length }} empresas
+    </div>
+  }
+
+</div>
+
+<app-empresa-panel
+  [visible]="panelVisible()"
+  [empresa]="empresaEdicion()"
+  (onCerrar)="cerrarPanel()"
+  (onGuardado)="onGuardado()"
+/>

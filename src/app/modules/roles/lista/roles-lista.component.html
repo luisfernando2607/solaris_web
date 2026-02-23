@@ -1,0 +1,125 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Roles</h1>
+      <p class="page-sub">{{ roles().length }} rol{{ roles().length !== 1 ? 'es' : '' }} configurados</p>
+    </div>
+    <p-button label="Nuevo rol" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input"
+             placeholder="Buscar rol por nombre o código..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) {
+        <button class="search-clear" (click)="busqueda.set('')">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+    </div>
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  <!-- Grid de tarjetas -->
+  @if (cargando()) {
+    <div class="loading-state">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Cargando roles...</p>
+    </div>
+  } @else if (rolesFiltrados().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-id-card"></i>
+      <p>No se encontraron roles</p>
+    </div>
+  } @else {
+    <div class="roles-grid">
+      @for (rol of rolesFiltrados(); track rol.id) {
+        <div class="rol-card">
+
+          <!-- Header tarjeta -->
+          <div class="card-header">
+            <div class="rol-icon-wrap"
+                 [style.background]="(rol.color ?? '#3b82f6') + '22'"
+                 [style.border-color]="(rol.color ?? '#3b82f6') + '44'">
+              <i [class]="rol.icono ?? 'pi pi-shield'"
+                 [style.color]="rol.color ?? '#3b82f6'"></i>
+            </div>
+            <div class="rol-info">
+              <span class="rol-nombre">{{ rol.nombre }}</span>
+              <code class="rol-codigo">{{ rol.codigo }}</code>
+            </div>
+            @if (rol.esSistema) {
+              <span class="sistema-badge" pTooltip="Rol del sistema — no se puede eliminar">
+                <i class="pi pi-lock"></i>
+              </span>
+            }
+          </div>
+
+          <!-- Descripción -->
+          @if (rol.descripcion) {
+            <p class="rol-desc">{{ rol.descripcion }}</p>
+          }
+
+          <!-- Stats -->
+          <div class="card-stats">
+            <div class="stat">
+              <i class="pi pi-users"></i>
+              <span>{{ rol.totalUsuarios ?? 0 }} usuarios</span>
+            </div>
+            <div class="stat">
+              <i class="pi pi-key"></i>
+              <span>{{ rol.totalPermisos ?? 0 }} permisos</span>
+            </div>
+            <div class="stat nivel-stat">
+              <i class="pi pi-sort-amount-up"></i>
+              <span>Nivel {{ rol.nivel }}</span>
+            </div>
+          </div>
+
+          <!-- Barra de nivel -->
+          <div class="nivel-bar">
+            <div class="nivel-fill"
+                 [style.width.%]="rol.nivel"
+                 [style.background]="rol.color ?? '#3b82f6'">
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="card-actions">
+            <button class="card-btn edit" (click)="abrirEditar(rol)"
+                    pTooltip="Editar rol y permisos" tooltipPosition="top">
+              <i class="pi pi-pencil"></i>
+              <span>Editar</span>
+            </button>
+            <button class="card-btn delete" (click)="eliminar(rol)"
+                    [disabled]="rol.esSistema"
+                    [pTooltip]="rol.esSistema ? 'Rol del sistema protegido' : 'Eliminar rol'"
+                    tooltipPosition="top">
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+</div>
+
+<!-- Panel lateral -->
+<app-rol-panel
+  [visible]="panelVisible()"
+  [rol]="rolEdicion()"
+  (onCerrar)="cerrarPanel()"
+  (onGuardado)="onGuardado()"
+/>

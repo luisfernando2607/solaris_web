@@ -1,0 +1,115 @@
+<p-toast position="top-right" />
+
+<p-dialog
+  [header]="titulo()"
+  [visible]="visible()"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="usuario-dialog"
+  [style]="{ width: '560px' }"
+  (onHide)="cerrar()"
+>
+
+  @if (error()) {
+    <p-message severity="error" [text]="error()" styleClass="w-full mb-3" />
+  }
+
+  <form [formGroup]="form" class="modal-form">
+
+    <!-- Nombres y Apellidos -->
+    <div class="form-row">
+      <div class="field">
+        <label>Nombres *</label>
+        <input pInputText formControlName="nombres" placeholder="Juan Carlos" />
+        @if (invalid('nombres')) {
+          <small class="err">Nombres requeridos (mín. 2 caracteres)</small>
+        }
+      </div>
+      <div class="field">
+        <label>Apellidos *</label>
+        <input pInputText formControlName="apellidos" placeholder="Pérez García" />
+        @if (invalid('apellidos')) {
+          <small class="err">Apellidos requeridos (mín. 2 caracteres)</small>
+        }
+      </div>
+    </div>
+
+    <!-- Email -->
+    <div class="field">
+      <label>Email *</label>
+      <input pInputText type="email" formControlName="email" placeholder="usuario@empresa.com" />
+      @if (invalid('email')) {
+        <small class="err">Email válido requerido</small>
+      }
+    </div>
+
+    <!-- Password (solo en creación) -->
+    @if (!esEdicion()) {
+      <div class="field">
+        <label>Contraseña *</label>
+        <p-password
+          formControlName="password"
+          placeholder="Mín. 8 caracteres"
+          [toggleMask]="true"
+          [feedback]="true"
+          styleClass="w-full"
+          inputStyleClass="w-full"
+        />
+        @if (invalid('password')) {
+          <small class="err">Contraseña requerida (mín. 8 caracteres)</small>
+        }
+      </div>
+    }
+
+    <!-- Username y Teléfonos -->
+    <div class="form-row">
+      <div class="field">
+        <label>Usuario</label>
+        <input pInputText formControlName="nombreUsuario" placeholder="jperez" />
+      </div>
+      <div class="field">
+        <label>Teléfono</label>
+        <input pInputText formControlName="telefono" placeholder="+593-99-999-9999" />
+      </div>
+    </div>
+
+    <!-- Roles (solo en creación) -->
+    @if (!esEdicion()) {
+      <div class="field">
+        <label>Roles</label>
+        <p-multiselect
+          formControlName="rolIds"
+          [options]="rolesOptions"
+          placeholder="Seleccionar roles..."
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+          display="chip"
+        />
+      </div>
+    }
+
+  </form>
+
+  <!-- Footer -->
+  <ng-template pTemplate="footer">
+    <div class="modal-footer">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="cerrar()"
+        [disabled]="cargando()"
+      />
+      <p-button
+        [label]="esEdicion() ? 'Guardar cambios' : 'Crear usuario'"
+        icon="pi pi-check"
+        [loading]="cargando()"
+        (onClick)="guardar()"
+      />
+    </div>
+  </ng-template>
+
+</p-dialog>

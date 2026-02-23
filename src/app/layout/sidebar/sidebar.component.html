@@ -1,0 +1,111 @@
+<aside class="sidebar" [class.collapsed]="collapsed()">
+
+  <!-- Logo -->
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="16" fill="url(#sg)"/>
+        <path d="M8 16 L16 8 L24 16 L16 24 Z" fill="white" opacity="0.9"/>
+        <circle cx="16" cy="16" r="4" fill="white"/>
+        <defs>
+          <linearGradient id="sg" x1="0" y1="0" x2="32" y2="32">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="100%" stop-color="#8b5cf6"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    @if (!collapsed()) {
+      <div class="logo-text">
+        <span class="logo-name">Solaris</span>
+        <span class="logo-sub">Platform</span>
+      </div>
+    }
+    <button class="collapse-btn" (click)="toggleCollapse()" [title]="collapsed() ? 'Expandir' : 'Colapsar'">
+      <i [class]="collapsed() ? 'pi pi-chevron-right' : 'pi pi-chevron-left'"></i>
+    </button>
+  </div>
+
+  <!-- Usuario activo -->
+  @if (!collapsed()) {
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        {{ usuario()?.nombreCompleto?.charAt(0) ?? 'U' }}
+      </div>
+      <div class="user-info">
+        <span class="user-name">{{ usuario()?.nombreCompleto }}</span>
+        <span class="user-role">{{ usuario()?.roles?.[0] ?? 'Usuario' }}</span>
+      </div>
+    </div>
+  }
+
+  <!-- Navegación -->
+  <nav class="sidebar-nav">
+    @for (item of navItems; track item.label) {
+      @if (tieneAcceso(item)) {
+
+        <!-- Item sin hijos -->
+        @if (!item.children) {
+          <a
+            class="nav-item"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [title]="collapsed() ? item.label : ''"
+          >
+            <i [class]="item.icon"></i>
+            @if (!collapsed()) {
+              <span>{{ item.label }}</span>
+            }
+          </a>
+        }
+
+        <!-- Item con hijos (grupo) -->
+        @else {
+          <div class="nav-group">
+            <button
+              class="nav-group-header"
+              (click)="toggleExpandido(item.label)"
+              [title]="collapsed() ? item.label : ''"
+            >
+              <i [class]="item.icon"></i>
+              @if (!collapsed()) {
+                <span>{{ item.label }}</span>
+                <i class="pi chevron"
+                   [class.pi-chevron-down]="estaExpandido(item.label)"
+                   [class.pi-chevron-right]="!estaExpandido(item.label)">
+                </i>
+              }
+            </button>
+
+            @if (estaExpandido(item.label) && !collapsed()) {
+              <div class="nav-children">
+                @for (child of item.children; track child.label) {
+                  @if (tieneAcceso(child)) {
+                    <a
+                      class="nav-item child"
+                      [routerLink]="child.route"
+                      routerLinkActive="active"
+                    >
+                      <i [class]="child.icon"></i>
+                      <span>{{ child.label }}</span>
+                    </a>
+                  }
+                }
+              </div>
+            }
+          </div>
+        }
+
+      }
+    }
+  </nav>
+
+  <!-- Logout -->
+  <div class="sidebar-bottom">
+    <button class="logout-btn" (click)="logout()" [title]="collapsed() ? 'Cerrar sesión' : ''">
+      <i class="pi pi-sign-out"></i>
+      @if (!collapsed()) { <span>Cerrar sesión</span> }
+    </button>
+  </div>
+
+</aside>

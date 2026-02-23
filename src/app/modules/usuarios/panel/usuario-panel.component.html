@@ -1,0 +1,167 @@
+<p-toast position="top-right" />
+
+<!-- Backdrop -->
+@if (visible()) {
+  <div class="panel-backdrop" (click)="cerrar()"></div>
+}
+
+<!-- Panel deslizante -->
+<div class="side-panel" [class.open]="visible()">
+
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon">
+        <i [class]="esEdicion() ? 'pi pi-user-edit' : 'pi pi-user-plus'"></i>
+      </div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">{{ subtitulo() }}</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()" title="Cerrar">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <!-- Body con scroll -->
+  <div class="panel-body">
+
+    @if (error()) {
+      <div class="panel-error">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="form" class="panel-form">
+
+      <!-- Sección: Datos personales -->
+      <div class="form-section">
+        <div class="section-label">
+          <i class="pi pi-id-card"></i>
+          Datos personales
+        </div>
+
+        <div class="field">
+          <label>Nombres <span class="req">*</span></label>
+          <input pInputText formControlName="nombres" placeholder="Juan Carlos" />
+          @if (invalid('nombres')) {
+            <small class="err">Mínimo 2 caracteres</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>Apellidos <span class="req">*</span></label>
+          <input pInputText formControlName="apellidos" placeholder="Pérez García" />
+          @if (invalid('apellidos')) {
+            <small class="err">Mínimo 2 caracteres</small>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Teléfono</label>
+            <input pInputText formControlName="telefono" placeholder="+593 99 999 9999" />
+          </div>
+          <div class="field">
+            <label>Celular</label>
+            <input pInputText formControlName="celular" placeholder="+593 99 999 9999" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Sección: Cuenta -->
+      <div class="form-section">
+        <div class="section-label">
+          <i class="pi pi-at"></i>
+          Cuenta de acceso
+        </div>
+
+        <div class="field">
+          <label>Email <span class="req">*</span></label>
+          <input pInputText type="email" formControlName="email"
+                 placeholder="usuario@empresa.com" />
+          @if (invalid('email')) {
+            <small class="err">Ingresa un email válido</small>
+          }
+          @if (esEdicion()) {
+            <small class="field-hint">El email no se puede modificar</small>
+          }
+        </div>
+
+        <div class="field">
+          <label>Nombre de usuario</label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">&#64;</span>
+            <input pInputText formControlName="nombreUsuario"
+                   placeholder="jperez" class="with-prefix" />
+          </div>
+        </div>
+
+        @if (!esEdicion()) {
+          <div class="field">
+            <label>Contraseña <span class="req">*</span></label>
+            <p-password
+              formControlName="password"
+              placeholder="Mínimo 8 caracteres"
+              [toggleMask]="true"
+              [feedback]="true"
+              styleClass="w-full"
+              inputStyleClass="w-full"
+            />
+            @if (invalid('password')) {
+              <small class="err">Contraseña requerida (mín. 8 caracteres)</small>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Sección: Roles (solo creación) -->
+      @if (!esEdicion()) {
+        <div class="form-section">
+          <div class="section-label">
+            <i class="pi pi-shield"></i>
+            Roles y permisos
+          </div>
+
+          <div class="field">
+            <label>Asignar roles</label>
+            <p-multiselect
+              formControlName="rolIds"
+              [options]="rolesOptions"
+              placeholder="Seleccionar roles..."
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+              display="chip"
+              [showClear]="true"
+            />
+            <small class="field-hint">El usuario tendrá los permisos de todos los roles asignados</small>
+          </div>
+        </div>
+      }
+
+    </form>
+  </div>
+
+  <!-- Footer fijo -->
+  <div class="panel-footer">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [outlined]="true"
+      [disabled]="cargando()"
+      (onClick)="cerrar()"
+      styleClass="flex-1"
+    />
+    <p-button
+      [label]="esEdicion() ? 'Guardar cambios' : 'Crear usuario'"
+      [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-user-plus'"
+      [loading]="cargando()"
+      (onClick)="guardar()"
+      styleClass="flex-1"
+    />
+  </div>
+
+</div>
