@@ -1,0 +1,81 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Formas de Pago</h1>
+      <p class="page-sub">{{ formasPagoFiltradas().length }} formas registradas</p>
+    </div>
+    <p-button label="Nueva forma de pago" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Buscar por nombre, código o tipo..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) { <button class="search-clear" (click)="busqueda.set('')"><i class="pi pi-times"></i></button> }
+    </div>
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar"><i class="pi pi-refresh"></i></button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state"><div class="loading-dots"><span></span><span></span><span></span></div><p>Cargando formas de pago...</p></div>
+  } @else if (formasPagoFiltradas().length === 0) {
+    <div class="empty-state"><i class="pi pi-credit-card"></i><p>No se encontraron formas de pago</p></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Nombre</th><th>Código</th><th>Tipo</th><th>Días crédito</th><th>Requiere</th><th>Estado</th><th class="th-actions">Acciones</th></tr>
+        </thead>
+        <tbody>
+          @for (f of formasPagoFiltradas(); track f.id) {
+            <tr>
+              <td><span class="item-nombre">{{ f.nombre }}</span></td>
+              <td><code class="mono-chip">{{ f.codigo }}</code></td>
+              <td>
+                <span class="tipo-chip"
+                      [style.background]="tipoColor[f.tipo] + '1a'"
+                      [style.border-color]="tipoColor[f.tipo] + '44'"
+                      [style.color]="tipoColor[f.tipo]">
+                  {{ f.tipo }}
+                </span>
+              </td>
+              <td>
+                @if (f.diasCredito > 0) {
+                  <span class="mono-num">{{ f.diasCredito }} días</span>
+                } @else {
+                  <span class="sub-text">—</span>
+                }
+              </td>
+              <td>
+                <div class="requiere-chips">
+                  @if (f.requiereBanco) { <span class="req-chip">Banco</span> }
+                  @if (f.requiereReferencia) { <span class="req-chip">Ref.</span> }
+                  @if (!f.requiereBanco && !f.requiereReferencia) { <span class="sub-text">—</span> }
+                </div>
+              </td>
+              <td>
+                <span class="estado-badge" [class.activo]="f.activo" [class.inactivo]="!f.activo">
+                  <span class="dot"></span>{{ f.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(f)" pTooltip="Editar" tooltipPosition="top"><i class="pi pi-pencil"></i></button>
+                  <button class="act-btn" (click)="toggleActivo(f)" [pTooltip]="f.activo ? 'Desactivar' : 'Activar'" tooltipPosition="top"><i [class]="f.activo ? 'pi pi-eye-slash' : 'pi pi-eye'"></i></button>
+                  <button class="act-btn danger" (click)="eliminar(f)" pTooltip="Eliminar" tooltipPosition="top"><i class="pi pi-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">Mostrando {{ formasPagoFiltradas().length }} de {{ formasPago().length }} formas</div>
+  }
+</div>
+
+<app-forma-pago-panel [visible]="panelVisible()" [formaPago]="formaPagoEdicion()"
+                      (onCerrar)="cerrarPanel()" (onGuardado)="onGuardado()" />

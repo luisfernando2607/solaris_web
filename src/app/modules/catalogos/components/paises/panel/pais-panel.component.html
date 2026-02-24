@@ -1,0 +1,94 @@
+@if (visible()) {
+  <div class="panel-backdrop" (click)="cerrar()"></div>
+}
+
+<div class="side-panel" [class.open]="visible()">
+
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-globe"></i></div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">{{ esEdicion() ? 'Edita los datos del país' : 'Completa los datos del nuevo país' }}</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+
+  <div class="panel-body">
+    @if (error()) {
+      <div class="panel-error">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="form" class="panel-form">
+
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-id-card"></i> Códigos</div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Código ISO3 <span class="req">*</span></label>
+            <input pInputText formControlName="codigo" placeholder="ECU"
+                   class="mono-input" maxlength="3"
+                   (input)="onUpperInput('codigo', $event)" />
+            @if (invalid('codigo')) { <small class="err">Requerido (2–3 caracteres)</small> }
+          </div>
+          <div class="field">
+            <label>Código ISO2 <span class="req">*</span></label>
+            <input pInputText formControlName="codigoIso2" placeholder="EC"
+                   class="mono-input" maxlength="2"
+                   (input)="onUpperInput('codigoIso2', $event)" />
+            @if (invalid('codigoIso2')) { <small class="err">Exactamente 2 caracteres</small> }
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-language"></i> Nombres</div>
+
+        <div class="field">
+          <label>Nombre (español) <span class="req">*</span></label>
+          <input pInputText formControlName="nombre" placeholder="Ecuador" />
+          @if (invalid('nombre')) { <small class="err">Requerido</small> }
+        </div>
+        <div class="field">
+          <label>Nombre (inglés)</label>
+          <input pInputText formControlName="nombreIngles" placeholder="Ecuador" />
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-phone"></i> Contacto y visual</div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Código telefónico</label>
+            <input pInputText formControlName="codigoTelefonico" placeholder="+593" />
+          </div>
+          <div class="field">
+            <label>Bandera (emoji)</label>
+            <input pInputText formControlName="bandera" placeholder="🇪🇨" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Orden</label>
+          <input pInputText type="number" formControlName="orden" placeholder="0" min="0" />
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true"
+              [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button [label]="esEdicion() ? 'Guardar cambios' : 'Crear país'"
+              [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'"
+              [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+
+</div>

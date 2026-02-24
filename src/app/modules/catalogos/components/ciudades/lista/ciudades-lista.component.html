@@ -1,0 +1,98 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Ciudades</h1>
+      <p class="page-sub">{{ ciudadesFiltradas().length }} ciudades registradas</p>
+    </div>
+    <p-button label="Nueva ciudad" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input"
+             placeholder="Buscar por nombre o código..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) {
+        <button class="search-clear" (click)="busqueda.set('')">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+    </div>
+    <p-select [options]="estadosOptions()" placeholder="Todas las provincias"
+              [ngModel]="filtroEstadoId()" (ngModelChange)="filtroEstadoId.set($event); cargar()"
+              [showClear]="true" styleClass="filter-select" [filter]="true" />
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Cargando ciudades...</p>
+    </div>
+  } @else if (ciudadesFiltradas().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-map-marker"></i>
+      <p>No se encontraron ciudades</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Ciudad</th>
+            <th>Código</th>
+            <th>Provincia / Estado</th>
+            <th>Estado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of ciudadesFiltradas(); track c.id) {
+            <tr>
+              <td><span class="item-nombre">{{ c.nombre }}</span></td>
+              <td><code class="mono-chip">{{ c.codigo ?? '—' }}</code></td>
+              <td><span class="sub-text">{{ c.estadoProvinciaNombre ?? '—' }}</span></td>
+              <td>
+                <span class="estado-badge" [class.activo]="c.activo" [class.inactivo]="!c.activo">
+                  <span class="dot"></span>{{ c.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(c)" pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="act-btn" (click)="toggleActivo(c)"
+                          [pTooltip]="c.activo ? 'Desactivar' : 'Activar'" tooltipPosition="top">
+                    <i [class]="c.activo ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                  </button>
+                  <button class="act-btn danger" (click)="eliminar(c)" pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      Mostrando {{ ciudadesFiltradas().length }} de {{ ciudades().length }} ciudades
+    </div>
+  }
+
+</div>
+
+<app-ciudad-panel
+  [visible]="panelVisible()"
+  [ciudad]="ciudadEdicion()"
+  (onCerrar)="cerrarPanel()"
+  (onGuardado)="onGuardado()"
+/>

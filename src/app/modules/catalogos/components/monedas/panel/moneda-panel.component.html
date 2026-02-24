@@ -1,0 +1,62 @@
+@if (visible()) {
+  <div class="panel-backdrop" (click)="cerrar()"></div>
+}
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-dollar"></i></div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">Código ISO 4217 (USD, EUR, COP...)</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+
+  <div class="panel-body">
+    @if (error()) {
+      <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div>
+    }
+    <form [formGroup]="form" class="panel-form">
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-id-card"></i> Identificación</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Código ISO <span class="req">*</span></label>
+            <input pInputText formControlName="codigo" placeholder="USD" class="mono-input" maxlength="3" (input)="onCodigoInput($event)" />
+            @if (invalid('codigo')) { <small class="err">Requerido (máx. 3 caracteres)</small> }
+          </div>
+          <div class="field">
+            <label>Símbolo <span class="req">*</span></label>
+            <input pInputText formControlName="simbolo" placeholder="$" />
+            @if (invalid('simbolo')) { <small class="err">Requerido</small> }
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre <span class="req">*</span></label>
+          <input pInputText formControlName="nombre" placeholder="Dólar Estadounidense" />
+          @if (invalid('nombre')) { <small class="err">Requerido</small> }
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-cog"></i> Configuración</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Decimales <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="decimalesPermitidos" placeholder="2" min="0" max="6" />
+            @if (invalid('decimalesPermitidos')) { <small class="err">Entre 0 y 6</small> }
+          </div>
+          <div class="field">
+            <label>Orden</label>
+            <input pInputText type="number" formControlName="orden" placeholder="0" min="0" />
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button [label]="esEdicion() ? 'Guardar cambios' : 'Crear moneda'" [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'" [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>

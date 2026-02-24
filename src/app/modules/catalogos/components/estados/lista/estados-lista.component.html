@@ -1,0 +1,98 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Estados / Provincias</h1>
+      <p class="page-sub">{{ estadosFiltrados().length }} registros</p>
+    </div>
+    <p-button label="Nuevo estado" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input"
+             placeholder="Buscar por nombre o código..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) {
+        <button class="search-clear" (click)="busqueda.set('')">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+    </div>
+    <p-select [options]="paisesOptions()" placeholder="Todos los países"
+              [ngModel]="filtroPaisId()" (ngModelChange)="filtroPaisId.set($event); cargar()"
+              [showClear]="true" styleClass="filter-select" />
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Cargando estados...</p>
+    </div>
+  } @else if (estadosFiltrados().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-map"></i>
+      <p>No se encontraron estados / provincias</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Código</th>
+            <th>País</th>
+            <th>Estado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of estadosFiltrados(); track e.id) {
+            <tr>
+              <td><span class="item-nombre">{{ e.nombre }}</span></td>
+              <td><code class="mono-chip">{{ e.codigo }}</code></td>
+              <td><span class="sub-text">{{ e.paisNombre ?? '—' }}</span></td>
+              <td>
+                <span class="estado-badge" [class.activo]="e.activo" [class.inactivo]="!e.activo">
+                  <span class="dot"></span>{{ e.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(e)" pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="act-btn" (click)="toggleActivo(e)"
+                          [pTooltip]="e.activo ? 'Desactivar' : 'Activar'" tooltipPosition="top">
+                    <i [class]="e.activo ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                  </button>
+                  <button class="act-btn danger" (click)="eliminar(e)" pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      Mostrando {{ estadosFiltrados().length }} de {{ estados().length }} estados
+    </div>
+  }
+
+</div>
+
+<app-estado-panel
+  [visible]="panelVisible()"
+  [estado]="estadoEdicion()"
+  (onCerrar)="cerrarPanel()"
+  (onGuardado)="onGuardado()"
+/>

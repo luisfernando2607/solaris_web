@@ -1,0 +1,70 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Tipos de Identificación</h1>
+      <p class="page-sub">{{ tiposFiltrados().length }} tipos registrados</p>
+    </div>
+    <p-button label="Nuevo tipo" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Buscar por nombre o código..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) { <button class="search-clear" (click)="busqueda.set('')"><i class="pi pi-times"></i></button> }
+    </div>
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar"><i class="pi pi-refresh"></i></button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state"><div class="loading-dots"><span></span><span></span><span></span></div><p>Cargando tipos...</p></div>
+  } @else if (tiposFiltrados().length === 0) {
+    <div class="empty-state"><i class="pi pi-id-card"></i><p>No se encontraron tipos de identificación</p></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre</th><th>Código</th><th>País</th>
+            <th>Aplica a</th><th>Longitud</th><th>Estado</th><th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (t of tiposFiltrados(); track t.id) {
+            <tr>
+              <td><span class="item-nombre">{{ t.nombre }}</span></td>
+              <td><code class="mono-chip">{{ t.codigo }}</code></td>
+              <td><span class="sub-text">{{ t.paisNombre ?? 'Global' }}</span></td>
+              <td>
+                <div class="aplica-chips">
+                  @if (t.aplicaPersona) { <span class="aplica-chip persona">Persona</span> }
+                  @if (t.aplicaEmpresa) { <span class="aplica-chip empresa">Empresa</span> }
+                </div>
+              </td>
+              <td><span class="mono-num">{{ t.longitud ?? '—' }}</span></td>
+              <td>
+                <span class="estado-badge" [class.activo]="t.activo" [class.inactivo]="!t.activo">
+                  <span class="dot"></span>{{ t.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(t)" pTooltip="Editar" tooltipPosition="top"><i class="pi pi-pencil"></i></button>
+                  <button class="act-btn" (click)="toggleActivo(t)" [pTooltip]="t.activo ? 'Desactivar' : 'Activar'" tooltipPosition="top"><i [class]="t.activo ? 'pi pi-eye-slash' : 'pi pi-eye'"></i></button>
+                  <button class="act-btn danger" (click)="eliminar(t)" pTooltip="Eliminar" tooltipPosition="top"><i class="pi pi-trash"></i></button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">Mostrando {{ tiposFiltrados().length }} de {{ tipos().length }} tipos</div>
+  }
+</div>
+
+<app-tipo-identificacion-panel [visible]="panelVisible()" [tipo]="tipoEdicion()"
+                               (onCerrar)="cerrarPanel()" (onGuardado)="onGuardado()" />

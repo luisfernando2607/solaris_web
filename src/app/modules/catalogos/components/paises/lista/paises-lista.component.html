@@ -1,0 +1,114 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Países</h1>
+      <p class="page-sub">{{ paisesFiltrados().length }} país{{ paisesFiltrados().length !== 1 ? 'es' : '' }} registrados</p>
+    </div>
+    <p-button label="Nuevo país" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input"
+             placeholder="Buscar por nombre, código ISO..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) {
+        <button class="search-clear" (click)="busqueda.set('')">
+          <i class="pi pi-times"></i>
+        </button>
+      }
+    </div>
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Cargando países...</p>
+    </div>
+  } @else if (paisesFiltrados().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-globe"></i>
+      <p>No se encontraron países</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>País</th>
+            <th>ISO3</th>
+            <th>ISO2</th>
+            <th>Tel.</th>
+            <th>Estado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of paisesFiltrados(); track p.id) {
+            <tr>
+              <td>
+                <div class="item-cell">
+                  @if (p.bandera) {
+                    <span class="flag-emoji">{{ p.bandera }}</span>
+                  } @else {
+                    <div class="item-avatar">{{ p.nombre[0] }}</div>
+                  }
+                  <div>
+                    <div class="item-nombre">{{ p.nombre }}</div>
+                    @if (p.nombreIngles) {
+                      <div class="item-sub">{{ p.nombreIngles }}</div>
+                    }
+                  </div>
+                </div>
+              </td>
+              <td><code class="mono-chip">{{ p.codigo }}</code></td>
+              <td><code class="mono-chip">{{ p.codigoIso2 }}</code></td>
+              <td><span class="tel-chip">{{ p.codigoTelefonico ?? '—' }}</span></td>
+              <td>
+                <span class="estado-badge" [class.activo]="p.activo" [class.inactivo]="!p.activo">
+                  <span class="dot"></span>
+                  {{ p.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(p)"
+                          pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="act-btn" (click)="toggleActivo(p)"
+                          [pTooltip]="p.activo ? 'Desactivar' : 'Activar'" tooltipPosition="top">
+                    <i [class]="p.activo ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                  </button>
+                  <button class="act-btn danger" (click)="eliminar(p)"
+                          pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      Mostrando {{ paisesFiltrados().length }} de {{ paises().length }} países
+    </div>
+  }
+
+</div>
+
+<app-pais-panel
+  [visible]="panelVisible()"
+  [pais]="paisEdicion()"
+  (onCerrar)="cerrarPanel()"
+  (onGuardado)="onGuardado()"
+/>

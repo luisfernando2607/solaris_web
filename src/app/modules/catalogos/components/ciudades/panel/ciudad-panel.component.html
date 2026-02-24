@@ -1,0 +1,64 @@
+@if (visible()) {
+  <div class="panel-backdrop" (click)="cerrar()"></div>
+}
+
+<div class="side-panel" [class.open]="visible()">
+
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-map-marker"></i></div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">{{ esEdicion() ? 'Edita los datos de la ciudad' : 'Nueva ciudad' }}</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+
+  <div class="panel-body">
+    @if (error()) {
+      <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div>
+    }
+
+    <form [formGroup]="form" class="panel-form">
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-map"></i> Ubicación</div>
+        <div class="field">
+          <label>Estado / Provincia <span class="req">*</span></label>
+          <p-select formControlName="estadoProvinciaId" [options]="estadosOptions()"
+                    optionLabel="label" optionValue="value"
+                    placeholder="Seleccionar provincia" styleClass="w-full" [filter]="true" />
+          @if (invalid('estadoProvinciaId')) { <small class="err">Requerido</small> }
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-id-card"></i> Datos</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Código</label>
+            <input pInputText formControlName="codigo" placeholder="0901" class="mono-input" />
+          </div>
+          <div class="field col-2">
+            <label>Nombre <span class="req">*</span></label>
+            <input pInputText formControlName="nombre" placeholder="Guayaquil" />
+            @if (invalid('nombre')) { <small class="err">Requerido</small> }
+          </div>
+        </div>
+        <div class="field">
+          <label>Orden</label>
+          <input pInputText type="number" formControlName="orden" placeholder="0" min="0" />
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true"
+              [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button [label]="esEdicion() ? 'Guardar cambios' : 'Crear ciudad'"
+              [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'"
+              [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+
+</div>

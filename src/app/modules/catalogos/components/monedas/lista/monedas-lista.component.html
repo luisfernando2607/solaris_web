@@ -1,0 +1,88 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Monedas</h1>
+      <p class="page-sub">{{ monedasFiltradas().length }} monedas registradas</p>
+    </div>
+    <p-button label="Nueva moneda" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Buscar por nombre, código o símbolo..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) {
+        <button class="search-clear" (click)="busqueda.set('')"><i class="pi pi-times"></i></button>
+      }
+    </div>
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Cargando monedas...</p>
+    </div>
+  } @else if (monedasFiltradas().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-dollar"></i>
+      <p>No se encontraron monedas</p>
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Moneda</th>
+            <th>Código ISO</th>
+            <th>Símbolo</th>
+            <th>Decimales</th>
+            <th>Estado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of monedasFiltradas(); track m.id) {
+            <tr>
+              <td><span class="item-nombre">{{ m.nombre }}</span></td>
+              <td><code class="mono-chip">{{ m.codigo }}</code></td>
+              <td>
+                <span class="simbolo-chip">{{ m.simbolo }}</span>
+              </td>
+              <td><span class="mono-num">{{ m.decimalesPermitidos }}</span></td>
+              <td>
+                <span class="estado-badge" [class.activo]="m.activo" [class.inactivo]="!m.activo">
+                  <span class="dot"></span>{{ m.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(m)" pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="act-btn" (click)="toggleActivo(m)"
+                          [pTooltip]="m.activo ? 'Desactivar' : 'Activar'" tooltipPosition="top">
+                    <i [class]="m.activo ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                  </button>
+                  <button class="act-btn danger" (click)="eliminar(m)" pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">Mostrando {{ monedasFiltradas().length }} de {{ monedas().length }} monedas</div>
+  }
+</div>
+
+<app-moneda-panel [visible]="panelVisible()" [moneda]="monedaEdicion()"
+                  (onCerrar)="cerrarPanel()" (onGuardado)="onGuardado()" />

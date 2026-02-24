@@ -34,6 +34,10 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./modules/empresas/empresas.routes').then(m => m.EMPRESAS_ROUTES)
       },
+      {
+        path: 'catalogos',
+        loadChildren: () => import('./modules/catalogos/catalogos.routes').then(m => m.CATALOGOS_ROUTES)
+      }
     ]
   },
   { path: '**', redirectTo: 'dashboard' }
