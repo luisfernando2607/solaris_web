@@ -49,7 +49,7 @@ export class SidebarComponent {
       icon: 'pi pi-list',
       children: [
         { label: 'Países',               icon: 'pi pi-globe',       route: '/catalogos/paises'               },
-        { label: 'Estados / Provincias', icon: 'pi pi-map',         route: '/catalogos/estados'              },
+        { label: 'Estados / Provincias', icon: 'pi pi-map',         route: '/catalogos/estados-provincias'              },
         { label: 'Ciudades',             icon: 'pi pi-map-marker',  route: '/catalogos/ciudades'             },
         { label: 'Monedas',              icon: 'pi pi-dollar',      route: '/catalogos/monedas'              },
         { label: 'Tipos Identificación', icon: 'pi pi-id-card',     route: '/catalogos/tipos-identificacion' },

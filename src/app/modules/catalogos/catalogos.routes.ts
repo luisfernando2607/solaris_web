@@ -11,7 +11,7 @@ export const CATALOGOS_ROUTES: Routes = [
         loadComponent: () => import('./components/paises/lista/paises-lista.component').then(m => m.PaisesListaComponent),
       },
       {
-        path: 'estados',
+        path: 'estados-provincias',
         loadComponent: () => import('./components/estados/lista/estados-lista.component').then(m => m.EstadosListaComponent),
       },
       {

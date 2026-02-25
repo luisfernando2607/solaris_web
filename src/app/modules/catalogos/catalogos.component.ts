@@ -20,7 +20,7 @@ export class CatalogosComponent {
 
   readonly menuItems: CatalogoMenu[] = [
     { label: 'Países',               icon: 'pi pi-globe',        path: 'paises' },
-    { label: 'Estados / Provincias', icon: 'pi pi-map',          path: 'estados' },
+    { label: 'Estados / Provincias', icon: 'pi pi-map',          path: 'estados-provincias' },
     { label: 'Ciudades',             icon: 'pi pi-map-marker',   path: 'ciudades' },
     { label: 'Monedas',              icon: 'pi pi-dollar',       path: 'monedas' },
     { label: 'Tipos Identificación', icon: 'pi pi-id-card',      path: 'tipos-identificacion' },

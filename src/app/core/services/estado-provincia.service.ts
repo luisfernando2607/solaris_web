@@ -8,7 +8,7 @@ import { EstadoProvincia, CrearEstadoRequest, ActualizarEstadoRequest } from '..
 @Injectable({ providedIn: 'root' })
 export class EstadoProvinciaService {
   private readonly http = inject(HttpClient);
-  private readonly url  = `${environment.apiUrl}/catalogos/estados`;
+  private readonly url  = `${environment.apiUrl}/catalogos/estados-provincias`;
 
   private _estados  = signal<EstadoProvincia[]>([]);
   private _cargando = signal<boolean>(false);
