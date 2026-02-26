@@ -1,0 +1,107 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Empleados</h1>
+      <p class="page-sub">{{ empleadosFiltrados().length }} empleado{{ empleadosFiltrados().length !== 1 ? 's' : '' }} encontrados</p>
+    </div>
+    <p-button label="Nuevo empleado" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Buscar por nombre, código, cédula o email..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) {
+        <button class="search-clear" (click)="busqueda.set('')"><i class="pi pi-times"></i></button>
+      }
+    </div>
+    <p-select [options]="estadoOpciones" [ngModel]="filtroEstado()" (ngModelChange)="filtroEstado.set($event)"
+              optionLabel="label" optionValue="value" placeholder="Estado"
+              [showClear]="true" styleClass="filter-select" />
+    <p-select [options]="departamentosOpciones()" [ngModel]="filtroDeptId()" (ngModelChange)="filtroDeptId.set($event)"
+              optionLabel="label" optionValue="value" placeholder="Departamento"
+              [showClear]="true" styleClass="filter-select" />
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Cargando empleados...</p>
+    </div>
+  } @else if (empleadosFiltrados().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-users"></i>
+      <p>No se encontraron empleados</p>
+      @if (busqueda()) { <small>Intenta con otro término de búsqueda</small> }
+    </div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Empleado</th>
+            <th>Identificación</th>
+            <th>Departamento / Puesto</th>
+            <th>Salario</th>
+            <th>Estado</th>
+            <th>Ingreso</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (e of empleadosFiltrados(); track e.id) {
+            <tr>
+              <td>
+                <div class="item-cell">
+                  <div class="item-avatar">{{ iniciales(e.nombreCompleto) }}</div>
+                  <div>
+                    <div class="item-nombre">{{ e.nombreCompleto }}</div>
+                    <div class="item-sub">{{ e.codigo }}{{ e.emailCorporativo ? ' · ' + e.emailCorporativo : '' }}</div>
+                  </div>
+                </div>
+              </td>
+              <td><code class="mono-chip">{{ e.numeroIdentificacion }}</code></td>
+              <td>
+                <span class="sub-text">{{ e.departamentoNombre ?? '—' }}</span>
+                @if (e.puestoNombre) { <br><span class="sub-text-xs">{{ e.puestoNombre }}</span> }
+              </td>
+              <td><code class="mono-chip">{{ formatSalario(e.salarioBase) }}</code></td>
+              <td>
+                <p-tag [value]="etiquetaEstado(e.estado)" [severity]="severidadEstado(e.estado)" />
+              </td>
+              <td><span class="sub-text mono-chip">{{ e.fechaIngreso | date:'dd/MM/yyyy' }}</span></td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(e.id)" pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="act-btn" (click)="toggleActivo(e)"
+                          [pTooltip]="e.estado === 1 ? 'Desactivar' : 'Activar'" tooltipPosition="top">
+                    <i [class]="e.estado === 1 ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">Mostrando {{ empleadosFiltrados().length }} de {{ total() }} empleados</div>
+  }
+
+</div>
+
+<app-empleado-panel
+  [visible]="panelVisible()"
+  [empleado]="empleadoEdicion()"
+  (onCerrar)="cerrarPanel()"
+  (onGuardado)="onGuardado()"
+/>

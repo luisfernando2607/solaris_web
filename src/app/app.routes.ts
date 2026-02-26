@@ -36,8 +36,16 @@ export const routes: Routes = [
       },
       {
         path: 'catalogos',
-        loadChildren: () => import('./modules/catalogos/catalogos.routes').then(m => m.CATALOGOS_ROUTES)
-      }
+        loadChildren: () =>
+          import('./modules/catalogos/catalogos.routes').then(m => m.CATALOGOS_ROUTES)
+      },
+      // ── RRHH ─────────────────────────────────────────────────────
+      {
+        path: 'rrhh',
+        loadChildren: () =>
+          import('./modules/rrhh/rrhh.routes').then(m => m.RRHH_ROUTES)
+      },
+      // ─────────────────────────────────────────────────────────────
     ]
   },
   { path: '**', redirectTo: 'dashboard' }

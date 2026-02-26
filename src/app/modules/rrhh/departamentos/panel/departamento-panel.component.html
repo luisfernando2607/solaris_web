@@ -1,0 +1,129 @@
+<p-toast position="top-right" />
+
+<!-- Backdrop -->
+@if (visible()) {
+  <div class="panel-backdrop" (click)="cerrar()"></div>
+}
+
+<!-- Panel deslizante -->
+<div class="side-panel" [class.open]="visible()">
+
+  <!-- Header -->
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon">
+        <i [class]="esEdicion() ? 'pi pi-building' : 'pi pi-plus-circle'"></i>
+      </div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">{{ subtitulo() }}</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()" title="Cerrar">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <!-- Body con scroll -->
+  <div class="panel-body">
+
+    @if (error()) {
+      <div class="panel-error">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="form" class="panel-form">
+
+      <!-- Sección: Identificación -->
+      <div class="form-section">
+        <div class="section-label">
+          <i class="pi pi-tag"></i>
+          Identificación
+        </div>
+
+        <div class="field">
+          <label>Código <span class="req">*</span></label>
+          <input pInputText formControlName="codigo" placeholder="Ej: TI-DEV" maxlength="20" />
+          @if (invalid('codigo')) { <small class="err">El código es requerido</small> }
+          @if (esEdicion()) { <small class="field-hint">El código no se puede modificar</small> }
+        </div>
+
+        <div class="field">
+          <label>Nombre <span class="req">*</span></label>
+          <input pInputText formControlName="nombre" placeholder="Ej: Tecnología de la Información" maxlength="100" />
+          @if (invalid('nombre')) { <small class="err">Mínimo 2 caracteres</small> }
+        </div>
+
+        <div class="field">
+          <label>Descripción</label>
+          <textarea
+            pTextarea
+            formControlName="descripcion"
+            placeholder="Describe las funciones y responsabilidades del departamento..."
+            rows="3"
+            style="width:100%; resize:vertical;"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Sección: Organización -->
+      <div class="form-section">
+        <div class="section-label">
+          <i class="pi pi-sitemap"></i>
+          Jerarquía y presupuesto
+        </div>
+
+        <div class="field">
+          <label>Departamento Padre</label>
+          <p-select
+            formControlName="departamentoPadreId"
+            [options]="padresOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="— Sin departamento padre (raíz) —"
+            [showClear]="true"
+            styleClass="w-full"
+          />
+          <small class="field-hint">Deja vacío si es un departamento de nivel principal</small>
+        </div>
+
+        <div class="field">
+          <label>Presupuesto Anual (USD)</label>
+          <p-inputnumber
+            formControlName="presupuestoAnual"
+            mode="currency"
+            currency="USD"
+            locale="es-EC"
+            [minFractionDigits]="0"
+            placeholder="0"
+            styleClass="w-full"
+            inputStyleClass="w-full"
+          />
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- Footer fijo -->
+  <div class="panel-footer">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      [outlined]="true"
+      [disabled]="cargando()"
+      (onClick)="cerrar()"
+      styleClass="flex-1"
+    />
+    <p-button
+      [label]="esEdicion() ? 'Guardar cambios' : 'Crear departamento'"
+      [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'"
+      [loading]="cargando()"
+      (onClick)="guardar()"
+      styleClass="flex-1"
+    />
+  </div>
+
+</div>

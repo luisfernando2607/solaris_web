@@ -1,0 +1,268 @@
+// =====================================================================
+// SOLARIS PLATFORM - Módulo RRHH
+// Modelos / Interfaces TypeScript
+// =====================================================================
+
+// ─── ENUMS ────────────────────────────────────────────────────────────
+
+export enum NivelJerarquico {
+  Operativo = 1,
+  Supervisor = 2,
+  Gerencia = 3,
+  Direccion = 4
+}
+
+export enum TipoContrato {
+  Indefinido = 1,
+  PlazoFijo = 2,
+  ObraCierta = 3,
+  Pasantia = 4
+}
+
+export enum ModalidadTrabajo {
+  Presencial = 1,
+  Remoto = 2,
+  Hibrido = 3
+}
+
+export enum JornadaLaboral {
+  Completa = 1,
+  Parcial = 2
+}
+
+export enum EstadoEmpleado {
+  Activo = 1,
+  Licencia = 2,
+  Vacaciones = 3,
+  Egresado = 4
+}
+
+export enum Genero {
+  Masculino = 1,
+  Femenino = 2,
+  Otro = 3
+}
+
+export enum EstadoCivil {
+  Soltero = 1,
+  Casado = 2,
+  Divorciado = 3,
+  Viudo = 4,
+  UnionLibre = 5
+}
+
+export enum TipoIdentificacion {
+  Cedula = 'CEDULA',
+  Pasaporte = 'PASAPORTE',
+  RUC = 'RUC',
+  DNI = 'DNI'
+}
+
+export enum TipoCuentaBancaria {
+  Ahorros = 1,
+  Corriente = 2
+}
+
+// ─── DEPARTAMENTO ─────────────────────────────────────────────────────
+
+export interface DepartamentoDto {
+  id: number;
+  empresaId: number;
+  departamentoPadreId?: number;
+  departamentoPadreNombre?: string;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  responsableId?: number;
+  responsableNombre?: string;
+  presupuestoAnual?: number;
+  nivel: number;
+  activo: boolean;
+  totalEmpleados?: number;
+}
+
+export interface CrearDepartamentoRequest {
+  empresaId: number;
+  departamentoPadreId?: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  responsableId?: number;
+  presupuestoAnual?: number;
+}
+
+export type ActualizarDepartamentoRequest = CrearDepartamentoRequest & { id: number };
+
+// ─── PUESTO ───────────────────────────────────────────────────────────
+
+export interface PuestoDto {
+  id: number;
+  empresaId: number;
+  departamentoId: number;
+  departamentoNombre: string;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  nivelJerarquico: NivelJerarquico;
+  nivelJerarquicoNombre?: string;
+  bandaSalarialMin?: number;
+  bandaSalarialMax?: number;
+  requiereTitulo: boolean;
+  activo: boolean;
+  totalEmpleados?: number;
+}
+
+export interface CrearPuestoRequest {
+  empresaId: number;
+  departamentoId: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  nivelJerarquico: NivelJerarquico;
+  bandaSalarialMin?: number;
+  bandaSalarialMax?: number;
+  requiereTitulo: boolean;
+}
+
+export type ActualizarPuestoRequest = CrearPuestoRequest & { id: number };
+
+// ─── EMPLEADO ─────────────────────────────────────────────────────────
+
+export interface EmpleadoDto {
+  id: number;
+  empresaId: number;
+  sucursalId?: number;
+  codigo: string;
+  tipoIdentificacion: string;
+  numeroIdentificacion: string;
+  primerNombre: string;
+  segundoNombre?: string;
+  primerApellido: string;
+  segundoApellido?: string;
+  nombreCompleto: string;
+  fechaNacimiento?: string;
+  genero?: Genero;
+  estadoCivil?: EstadoCivil;
+  emailPersonal?: string;
+  emailCorporativo?: string;
+  telefonoCelular?: string;
+  telefonoFijo?: string;
+  direccion?: string;
+  departamentoId?: number;
+  departamentoNombre?: string;
+  puestoId?: number;
+  puestoNombre?: string;
+  jefeDirectoId?: number;
+  jefeDirectoNombre?: string;
+  fechaIngreso: string;
+  fechaEgreso?: string;
+  tipoContrato: TipoContrato;
+  tipoContratoNombre?: string;
+  modalidadTrabajo: ModalidadTrabajo;
+  jornadaLaboral: JornadaLaboral;
+  horasSemanales: number;
+  salarioBase: number;
+  numeroSeguroSocial?: string;
+  bancoId?: number;
+  bancoNombre?: string;
+  tipoCuentaBancaria?: TipoCuentaBancaria;
+  numeroCuentaBancaria?: string;
+  estado: EstadoEmpleado;
+  estadoNombre?: string;
+  fotoUrl?: string;
+  activo: boolean;
+}
+
+export interface CrearEmpleadoRequest {
+  empresaId: number;
+  sucursalId?: number;
+  tipoIdentificacion: string;
+  numeroIdentificacion: string;
+  primerNombre: string;
+  segundoNombre?: string;
+  primerApellido: string;
+  segundoApellido?: string;
+  fechaNacimiento?: string;
+  genero?: Genero;
+  estadoCivil?: EstadoCivil;
+  emailPersonal?: string;
+  emailCorporativo?: string;
+  telefonoCelular?: string;
+  telefonoFijo?: string;
+  direccion?: string;
+  departamentoId?: number;
+  puestoId?: number;
+  jefeDirectoId?: number;
+  fechaIngreso: string;
+  tipoContrato: TipoContrato;
+  modalidadTrabajo: ModalidadTrabajo;
+  jornadaLaboral: JornadaLaboral;
+  horasSemanales: number;
+  salarioBase: number;
+  numeroSeguroSocial?: string;
+  bancoId?: number;
+  tipoCuentaBancaria?: TipoCuentaBancaria;
+  numeroCuentaBancaria?: string;
+}
+
+export type ActualizarEmpleadoRequest = CrearEmpleadoRequest & { id: number };
+
+// ─── HELPERS / LOOKUPS ────────────────────────────────────────────────
+
+export interface OpcionSelect {
+  value: number | string;
+  label: string;
+}
+
+export const NIVELES_JERARQUICOS: OpcionSelect[] = [
+  { value: NivelJerarquico.Operativo, label: 'Operativo' },
+  { value: NivelJerarquico.Supervisor, label: 'Supervisor / Jefatura' },
+  { value: NivelJerarquico.Gerencia, label: 'Gerencia' },
+  { value: NivelJerarquico.Direccion, label: 'Dirección Ejecutiva' }
+];
+
+export const TIPOS_CONTRATO: OpcionSelect[] = [
+  { value: TipoContrato.Indefinido, label: 'Indefinido' },
+  { value: TipoContrato.PlazoFijo, label: 'Plazo Fijo' },
+  { value: TipoContrato.ObraCierta, label: 'Obra Cierta' },
+  { value: TipoContrato.Pasantia, label: 'Pasantía' }
+];
+
+export const MODALIDADES_TRABAJO: OpcionSelect[] = [
+  { value: ModalidadTrabajo.Presencial, label: 'Presencial' },
+  { value: ModalidadTrabajo.Remoto, label: 'Remoto / Teletrabajo' },
+  { value: ModalidadTrabajo.Hibrido, label: 'Híbrido' }
+];
+
+export const GENEROS: OpcionSelect[] = [
+  { value: Genero.Masculino, label: 'Masculino' },
+  { value: Genero.Femenino, label: 'Femenino' },
+  { value: Genero.Otro, label: 'Otro' }
+];
+
+export const ESTADOS_CIVILES: OpcionSelect[] = [
+  { value: EstadoCivil.Soltero, label: 'Soltero/a' },
+  { value: EstadoCivil.Casado, label: 'Casado/a' },
+  { value: EstadoCivil.Divorciado, label: 'Divorciado/a' },
+  { value: EstadoCivil.Viudo, label: 'Viudo/a' },
+  { value: EstadoCivil.UnionLibre, label: 'Unión Libre' }
+];
+
+export const TIPOS_IDENTIFICACION: OpcionSelect[] = [
+  { value: TipoIdentificacion.Cedula, label: 'Cédula de Identidad' },
+  { value: TipoIdentificacion.Pasaporte, label: 'Pasaporte' },
+  { value: TipoIdentificacion.RUC, label: 'RUC' },
+  { value: TipoIdentificacion.DNI, label: 'DNI' }
+];
+
+export const ESTADOS_EMPLEADO: OpcionSelect[] = [
+  { value: EstadoEmpleado.Activo, label: 'Activo' },
+  { value: EstadoEmpleado.Licencia, label: 'En Licencia' },
+  { value: EstadoEmpleado.Vacaciones, label: 'En Vacaciones' },
+  { value: EstadoEmpleado.Egresado, label: 'Egresado' }
+];
+
+export const TIPOS_CUENTA_BANCARIA: OpcionSelect[] = [
+  { value: TipoCuentaBancaria.Ahorros, label: 'Cuenta de Ahorros' },
+  { value: TipoCuentaBancaria.Corriente, label: 'Cuenta Corriente' }
+];

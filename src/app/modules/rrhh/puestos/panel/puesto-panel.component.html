@@ -1,0 +1,137 @@
+<p-toast position="top-right" />
+
+@if (visible()) {
+  <div class="panel-backdrop" (click)="cerrar()"></div>
+}
+
+<div class="side-panel" [class.open]="visible()">
+
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon">
+        <i [class]="esEdicion() ? 'pi pi-briefcase' : 'pi pi-plus-circle'"></i>
+      </div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">{{ subtitulo() }}</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()" title="Cerrar">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+
+  <div class="panel-body">
+
+    @if (error()) {
+      <div class="panel-error">
+        <i class="pi pi-exclamation-circle"></i>
+        <span>{{ error() }}</span>
+      </div>
+    }
+
+    <form [formGroup]="form" class="panel-form">
+
+      <!-- Identificación -->
+      <div class="form-section">
+        <div class="section-label">
+          <i class="pi pi-tag"></i>
+          Identificación
+        </div>
+
+        <div class="field">
+          <label>Departamento <span class="req">*</span></label>
+          <p-select
+            formControlName="departamentoId"
+            [options]="departamentosOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="— Seleccione departamento —"
+            styleClass="w-full"
+          />
+          @if (invalid('departamentoId')) { <small class="err">Seleccione un departamento</small> }
+        </div>
+
+        <div class="field">
+          <label>Código <span class="req">*</span></label>
+          <input pInputText formControlName="codigo" placeholder="Ej: TI-DEV-SR" maxlength="20" />
+          @if (invalid('codigo')) { <small class="err">El código es requerido</small> }
+          @if (esEdicion()) { <small class="field-hint">El código no se puede modificar</small> }
+        </div>
+
+        <div class="field">
+          <label>Nombre <span class="req">*</span></label>
+          <input pInputText formControlName="nombre" placeholder="Ej: Desarrollador Senior" maxlength="100" />
+          @if (invalid('nombre')) { <small class="err">Mínimo 2 caracteres</small> }
+        </div>
+
+        <div class="field">
+          <label>Descripción</label>
+          <textarea pTextarea formControlName="descripcion"
+            placeholder="Responsabilidades y requisitos del puesto..." rows="3"
+            style="width:100%; resize:vertical;"></textarea>
+        </div>
+      </div>
+
+      <!-- Jerarquía y salario -->
+      <div class="form-section">
+        <div class="section-label">
+          <i class="pi pi-chart-bar"></i>
+          Jerarquía y salario
+        </div>
+
+        <div class="field">
+          <label>Nivel Jerárquico <span class="req">*</span></label>
+          <p-select
+            formControlName="nivelJerarquico"
+            [options]="nivelesOptions"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Salario Mínimo (USD)</label>
+            <p-inputnumber
+              formControlName="bandaSalarialMin"
+              mode="currency" currency="USD" locale="es-EC"
+              [minFractionDigits]="0" placeholder="0"
+              styleClass="w-full" inputStyleClass="w-full"
+            />
+          </div>
+          <div class="field">
+            <label>Salario Máximo (USD)</label>
+            <p-inputnumber
+              formControlName="bandaSalarialMax"
+              mode="currency" currency="USD" locale="es-EC"
+              [minFractionDigits]="0" placeholder="0"
+              styleClass="w-full" inputStyleClass="w-full"
+            />
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="check-wrap">
+            <p-checkbox formControlName="requiereTitulo" [binary]="true" inputId="reqTitulo" />
+            <label for="reqTitulo" style="cursor:pointer; font-size:.82rem;">
+              Requiere título universitario
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true"
+      [disabled]="cargando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button
+      [label]="esEdicion() ? 'Guardar cambios' : 'Crear puesto'"
+      [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'"
+      [loading]="cargando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+
+</div>

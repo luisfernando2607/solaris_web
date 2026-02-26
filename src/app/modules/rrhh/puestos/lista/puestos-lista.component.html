@@ -1,0 +1,213 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Puestos</h1>
+      <p class="page-sub">{{ puestosFiltrados().length }} de {{ puestos().length }} puestos · {{ grupos().length }} departamento{{ grupos().length !== 1 ? 's' : '' }}</p>
+    </div>
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button class="view-btn" [class.active]="vista() === 'cards'" (click)="vista.set('cards')" title="Vista cards">
+          <i class="pi pi-th-large"></i>
+        </button>
+        <button class="view-btn" [class.active]="vista() === 'tabla'" (click)="vista.set('tabla')" title="Vista tabla">
+          <i class="pi pi-list"></i>
+        </button>
+      </div>
+      <p-button label="Nuevo puesto" icon="pi pi-plus" (onClick)="abrirCrear()" />
+    </div>
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input"
+             placeholder="Buscar por nombre, código o departamento..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) {
+        <button class="search-clear" (click)="busqueda.set('')"><i class="pi pi-times"></i></button>
+      }
+    </div>
+    <p-select [options]="departamentosOpciones()" [ngModel]="filtroDeptId()" (ngModelChange)="filtroDeptId.set($event)"
+              optionLabel="label" optionValue="value" placeholder="Departamento"
+              [showClear]="true" styleClass="filter-select" />
+    <p-select [options]="nivelesOpciones" [ngModel]="filtroNivel()" (ngModelChange)="filtroNivel.set($event)"
+              optionLabel="label" optionValue="value" placeholder="Nivel"
+              [showClear]="true" styleClass="filter-select" />
+    <p-select [options]="estadoOpciones" [ngModel]="filtroActivo()" (ngModelChange)="filtroActivo.set($event)"
+              optionLabel="label" optionValue="value" placeholder="Estado"
+              [showClear]="true" styleClass="filter-select" />
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  <!-- ── Estado: cargando ── -->
+  @if (cargando()) {
+    <div class="loading-state">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Cargando puestos...</p>
+    </div>
+
+  <!-- ── Estado: vacío ── -->
+  } @else if (puestosFiltrados().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-briefcase"></i>
+      <p>No se encontraron puestos</p>
+      @if (busqueda()) { <small>Intenta con otro término de búsqueda</small> }
+    </div>
+
+  <!-- ── Vista CARDS agrupadas por departamento ── -->
+  } @else if (vista() === 'cards') {
+    <div class="grupos-wrap">
+      @for (grupo of grupos(); track grupo.deptId) {
+        <div class="grupo">
+          <div class="grupo-header">
+            <div class="grupo-title-wrap">
+              <div class="grupo-avatar">{{ iniciales(grupo.deptNombre) }}</div>
+              <div>
+                <span class="grupo-title">{{ grupo.deptNombre }}</span>
+                <span class="grupo-count">{{ grupo.puestos.length }} puesto{{ grupo.puestos.length !== 1 ? 's' : '' }}</span>
+              </div>
+            </div>
+            <button class="grupo-add" (click)="abrirCrearEnDept(grupo.deptId)" pTooltip="Nuevo puesto en este departamento" tooltipPosition="top">
+              <i class="pi pi-plus"></i>
+            </button>
+          </div>
+
+          <div class="cards-grid">
+            @for (p of grupo.puestos; track p.id) {
+              <div class="puesto-card" [class.inactivo]="!p.activo" (click)="abrirEditar(p.id)">
+
+                <div class="card-top">
+                  <div class="card-icon-wrap nivel-{{ p.nivelJerarquico }}">
+                    <i class="pi pi-briefcase"></i>
+                  </div>
+                  <div class="card-badges">
+                    <span class="nivel-chip nivel-{{ p.nivelJerarquico }}">{{ nivelLabel(p.nivelJerarquico) }}</span>
+                    @if (!p.activo) { <span class="inactivo-chip">Inactivo</span> }
+                  </div>
+                </div>
+
+                <div class="card-body">
+                  <div class="card-nombre">{{ p.nombre }}</div>
+                  <code class="card-codigo">{{ p.codigo }}</code>
+                  @if (p.descripcion) {
+                    <p class="card-desc">{{ p.descripcion }}</p>
+                  }
+                </div>
+
+                <div class="card-footer">
+                  @if (p.bandaSalarialMin || p.bandaSalarialMax) {
+                    <div class="salario-wrap">
+                      <i class="pi pi-dollar"></i>
+                      <span>{{ formatSalario(p.bandaSalarialMin) }} – {{ formatSalario(p.bandaSalarialMax) }}</span>
+                    </div>
+                  } @else {
+                    <span class="sin-salario">Sin banda salarial</span>
+                  }
+                  @if (p.requiereTitulo) {
+                    <span class="titulo-badge"><i class="pi pi-graduation-cap"></i> Título</span>
+                  }
+                </div>
+
+                <div class="card-actions" (click)="$event.stopPropagation()">
+                  <button class="act-btn" (click)="abrirEditar(p.id)" pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="act-btn" (click)="toggleActivo(p)"
+                          [pTooltip]="p.activo ? 'Desactivar' : 'Activar'" tooltipPosition="top">
+                    <i [class]="p.activo ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                  </button>
+                  <button class="act-btn danger" (click)="eliminar(p)" pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+  <!-- ── Vista TABLA ── -->
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Puesto</th>
+            <th>Código</th>
+            <th>Departamento</th>
+            <th>Nivel</th>
+            <th>Banda Salarial</th>
+            <th>Título</th>
+            <th>Estado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of puestosFiltrados(); track p.id) {
+            <tr [class.row-inactive]="!p.activo">
+              <td>
+                <div class="item-cell">
+                  <div class="item-avatar nivel-{{ p.nivelJerarquico }}"><i class="pi pi-briefcase"></i></div>
+                  <div>
+                    <div class="item-nombre">{{ p.nombre }}</div>
+                    @if (p.descripcion) { <div class="item-sub">{{ p.descripcion }}</div> }
+                  </div>
+                </div>
+              </td>
+              <td><code class="mono-chip">{{ p.codigo }}</code></td>
+              <td><span class="sub-text">{{ p.departamentoNombre }}</span></td>
+              <td><span class="nivel-chip nivel-{{ p.nivelJerarquico }}">{{ nivelLabel(p.nivelJerarquico) }}</span></td>
+              <td>
+                @if (p.bandaSalarialMin || p.bandaSalarialMax) {
+                  <code class="mono-chip">{{ formatSalario(p.bandaSalarialMin) }} – {{ formatSalario(p.bandaSalarialMax) }}</code>
+                } @else { <span class="sub-text">—</span> }
+              </td>
+              <td>
+                @if (p.requiereTitulo) {
+                  <span class="titulo-badge"><i class="pi pi-graduation-cap"></i> Sí</span>
+                } @else { <span class="sub-text">—</span> }
+              </td>
+              <td>
+                <span class="estado-badge" [class.activo]="p.activo" [class.inactivo]="!p.activo">
+                  <span class="dot"></span>{{ p.activo ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(p.id)" pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="act-btn" (click)="toggleActivo(p)"
+                          [pTooltip]="p.activo ? 'Desactivar' : 'Activar'" tooltipPosition="top">
+                    <i [class]="p.activo ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                  </button>
+                  <button class="act-btn danger" (click)="eliminar(p)" pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">Mostrando {{ puestosFiltrados().length }} de {{ puestos().length }} puestos</div>
+  }
+
+</div>
+
+<app-puesto-panel
+  [visible]="panelVisible()"
+  [puesto]="puestoEdicion()"
+  [deptIdInicial]="deptIdInicial()"
+  (onCerrar)="cerrarPanel()"
+  (onGuardado)="onGuardado()"
+/>

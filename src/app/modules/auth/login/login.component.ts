@@ -50,6 +50,8 @@ export class LoginComponent {
     password: ['Admin123!#',          [Validators.required, Validators.minLength(6)]]
   });
 
+  currentYear: number = new Date().getFullYear();
+
   onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();

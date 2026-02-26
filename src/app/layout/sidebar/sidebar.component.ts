@@ -21,18 +21,18 @@ interface NavItem {
 export class SidebarComponent {
   private readonly authService = inject(AuthService);
 
-  readonly usuario  = this.authService.usuario;
+  readonly usuario   = this.authService.usuario;
   readonly collapsed = signal(false);
 
   readonly navItems: NavItem[] = [
     {
       label: 'Dashboard',
-      icon: 'pi pi-home',
+      icon:  'pi pi-home',
       route: '/dashboard'
     },
     {
       label: 'Seguridad',
-      icon: 'pi pi-shield',
+      icon:  'pi pi-shield',
       children: [
         { label: 'Usuarios', icon: 'pi pi-users',   route: '/usuarios', permiso: 'usuarios.ver' },
         { label: 'Roles',    icon: 'pi pi-id-card', route: '/roles',    permiso: 'roles.ver'    },
@@ -40,16 +40,16 @@ export class SidebarComponent {
     },
     {
       label: 'Empresas',
-      icon: 'pi pi-building',
+      icon:  'pi pi-building',
       route: '/empresas',
       permiso: 'empresas.ver'
     },
     {
       label: 'Catálogos',
-      icon: 'pi pi-list',
+      icon:  'pi pi-list',
       children: [
         { label: 'Países',               icon: 'pi pi-globe',       route: '/catalogos/paises'               },
-        { label: 'Estados / Provincias', icon: 'pi pi-map',         route: '/catalogos/estados-provincias'              },
+        { label: 'Estados / Provincias', icon: 'pi pi-map',         route: '/catalogos/estados-provincias'   },
         { label: 'Ciudades',             icon: 'pi pi-map-marker',  route: '/catalogos/ciudades'             },
         { label: 'Monedas',              icon: 'pi pi-dollar',      route: '/catalogos/monedas'              },
         { label: 'Tipos Identificación', icon: 'pi pi-id-card',     route: '/catalogos/tipos-identificacion' },
@@ -58,13 +58,22 @@ export class SidebarComponent {
         { label: 'Bancos',               icon: 'pi pi-wallet',      route: '/catalogos/bancos'               },
       ]
     },
+    {
+      label: 'Recursos Humanos',
+      icon:  'pi pi-users',
+      children: [
+        { label: 'Empleados',     icon: 'pi pi-id-card',   route: '/rrhh/empleados'     },
+        { label: 'Departamentos', icon: 'pi pi-sitemap',   route: '/rrhh/departamentos' },
+        { label: 'Puestos',       icon: 'pi pi-briefcase', route: '/rrhh/puestos'       },
+      ]
+    },
   ];
 
-  expandidos = signal<Set<string>>(new Set(['Seguridad']));
+  expandidos = signal<Set<string>>(new Set([]));
 
-  toggleCollapse(): void {
-    this.collapsed.update(v => !v);
-  }
+    // expandidos = signal<Set<string>>(new Set(['Seguridad']));
+
+  toggleCollapse(): void { this.collapsed.update(v => !v); }
 
   toggleExpandido(label: string): void {
     this.expandidos.update(set => {
@@ -74,16 +83,12 @@ export class SidebarComponent {
     });
   }
 
-  estaExpandido(label: string): boolean {
-    return this.expandidos().has(label);
-  }
+  estaExpandido(label: string): boolean { return this.expandidos().has(label); }
 
   tieneAcceso(item: NavItem): boolean {
     if (!item.permiso) return true;
     return this.authService.tienePermiso(item.permiso);
   }
 
-  logout(): void {
-    this.authService.logout();
-  }
+  logout(): void { this.authService.logout(); }
 }
