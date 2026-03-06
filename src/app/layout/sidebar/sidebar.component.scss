@@ -87,3 +87,9 @@
   i { font-size: .9rem; }
   &:hover { background: rgba(239,68,68,.08); color: #ef4444; }
 }
+
+.brand-logo {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}

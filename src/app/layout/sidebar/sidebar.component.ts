@@ -30,6 +30,12 @@ export class SidebarComponent {
       icon:  'pi pi-home',
       route: '/dashboard'
     },
+        {
+      label: 'Empresas',
+      icon:  'pi pi-building',
+      route: '/empresas',
+      permiso: 'empresas.ver'
+    },
     {
       label: 'Seguridad',
       icon:  'pi pi-shield',
@@ -37,12 +43,6 @@ export class SidebarComponent {
         { label: 'Usuarios', icon: 'pi pi-users',   route: '/usuarios', permiso: 'usuarios.ver' },
         { label: 'Roles',    icon: 'pi pi-id-card', route: '/roles',    permiso: 'roles.ver'    },
       ]
-    },
-    {
-      label: 'Empresas',
-      icon:  'pi pi-building',
-      route: '/empresas',
-      permiso: 'empresas.ver'
     },
     {
       label: 'Catálogos',
@@ -65,6 +65,14 @@ export class SidebarComponent {
         { label: 'Empleados',     icon: 'pi pi-id-card',   route: '/rrhh/empleados'     },
         { label: 'Departamentos', icon: 'pi pi-sitemap',   route: '/rrhh/departamentos' },
         { label: 'Puestos',       icon: 'pi pi-briefcase', route: '/rrhh/puestos'       },
+      ]
+    },
+    {
+      label: 'Proyectos',
+      icon:  'pi pi-folder',
+      children: [
+        { label: 'Lista de Proyectos', icon: 'pi pi-list',      route: '/proyectos/lista'      },
+        { label: 'Dashboard',          icon: 'pi pi-chart-bar', route: '/proyectos/lista'      },
       ]
     },
   ];

@@ -112,3 +112,9 @@
   font-size: .65rem; color: var(--text-muted);
   font-family: 'JetBrains Mono', monospace;
 }
+
+.brand-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+}

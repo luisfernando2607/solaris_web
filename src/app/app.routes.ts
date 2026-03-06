@@ -45,6 +45,12 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./modules/rrhh/rrhh.routes').then(m => m.RRHH_ROUTES)
       },
+      // ── PROYECTOS ────────────────────────────────────────────────
+      {
+        path: 'proyectos',
+        loadChildren: () =>
+          import('./modules/proyectos/proyectos.routes').then(m => m.PROYECTOS_ROUTES)
+      },
       // ─────────────────────────────────────────────────────────────
     ]
   },

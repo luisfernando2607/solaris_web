@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, RouterLinkActive, RouterLink } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 interface CatalogoMenu {
   label: string;
@@ -11,13 +11,12 @@ interface CatalogoMenu {
 @Component({
   selector: 'app-catalogos',
   standalone: true,
-  imports: [CommonModule, RouterModule, RouterLinkActive, RouterLink],
+  imports: [CommonModule, RouterModule],
   templateUrl: './catalogos.component.html',
   styleUrls: ['./catalogos.component.scss'],
 })
 export class CatalogosComponent {
   readonly menuAbierto = signal(true);
-
   readonly menuItems: CatalogoMenu[] = [
     { label: 'Países',               icon: 'pi pi-globe',        path: 'paises' },
     { label: 'Estados / Provincias', icon: 'pi pi-map',          path: 'estados-provincias' },

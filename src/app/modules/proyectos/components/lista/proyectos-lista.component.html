@@ -1,0 +1,169 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="page">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Proyectos</h1>
+      <p class="page-sub">{{ total() }} proyectos registrados</p>
+    </div>
+    <p-button label="Nuevo proyecto" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Buscar por nombre o código..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" (keyup.enter)="buscar()" />
+      @if (busqueda()) {
+        <button class="search-clear" (click)="busqueda.set(''); buscar()"><i class="pi pi-times"></i></button>
+      }
+    </div>
+    <p-select [options]="estadoOpts" placeholder="Todos los estados"
+              [ngModel]="filtroEstado()" (ngModelChange)="filtroEstado.set($event); buscar()"
+              [showClear]="true" styleClass="filter-select" />
+    <p-select [options]="tipoOpts" placeholder="Todos los tipos"
+              [ngModel]="filtroTipo()" (ngModelChange)="filtroTipo.set($event); buscar()"
+              [showClear]="true" styleClass="filter-select" />
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+    @if (filtroEstado() || filtroTipo() || busqueda()) {
+      <button class="btn-clear-all" (click)="limpiarFiltros()">
+        <i class="pi pi-filter-slash"></i> Limpiar
+      </button>
+    }
+  </div>
+
+  <!-- Loading -->
+  @if (cargando()) {
+    <div class="loading-state">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      <p>Cargando proyectos...</p>
+    </div>
+  }
+
+  <!-- Empty -->
+  @else if (proyectos().length === 0) {
+    <div class="empty-state">
+      <i class="pi pi-folder-open"></i>
+      <p>No se encontraron proyectos</p>
+      <p-button label="Crear primer proyecto" icon="pi pi-plus" severity="secondary" [outlined]="true" (onClick)="abrirCrear()" />
+    </div>
+  }
+
+  <!-- Tabla -->
+  @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Proyecto</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Avance</th>
+            <th>Presupuesto</th>
+            <th>Gerente</th>
+            <th>Fechas</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of proyectos(); track p.id) {
+            <tr (click)="verDashboard(p)" class="row-clickable">
+              <td>
+                <div class="item-cell">
+                  <div class="proj-avatar" [attr.data-color]="getEstadoClass(p.estado)">
+                    {{ p.nombre[0] }}
+                  </div>
+                  <div>
+                    <div class="item-nombre">{{ p.nombre }}</div>
+                    <code class="item-codigo">{{ p.codigo }}</code>
+                  </div>
+                </div>
+              </td>
+              <td><span class="tipo-chip">{{ TIPO_LABELS[p.tipoProyecto] }}</span></td>
+              <td>
+                <span class="estado-badge" [attr.data-color]="getEstadoClass(p.estado)">
+                  <span class="dot"></span>{{ ESTADO_LABELS[p.estado] }}
+                </span>
+              </td>
+              <td>
+                <span class="prioridad-badge" [attr.data-level]="getPrioridadClass(p.prioridad)">
+                  {{ PRIORIDAD_LABELS[p.prioridad] }}
+                </span>
+              </td>
+              <td>
+                <div class="avance-cell">
+                  <div class="avance-bar">
+                    <div class="avance-fill plan"  [style.width.%]="p.porcentajeAvancePlan"></div>
+                    <div class="avance-fill real"  [style.width.%]="p.porcentajeAvanceReal"></div>
+                  </div>
+                  <div class="avance-labels">
+                    <span>{{ p.porcentajeAvanceReal | number:'1.0-0' }}%</span>
+                    <span class="muted">/ {{ p.porcentajeAvancePlan | number:'1.0-0' }}% plan</span>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="budget-cell">
+                  <span class="budget-total">{{ formatMoney(p.presupuestoTotal) }}</span>
+                  <span class="budget-real" [class.over]="p.costoRealTotal > p.presupuestoTotal">
+                    {{ formatMoney(p.costoRealTotal) }} real
+                  </span>
+                </div>
+              </td>
+              <td><span class="sub-text">{{ p.gerenteProyectoNombre ?? '—' }}</span></td>
+              <td>
+                <div class="dates-cell">
+                  @if (p.fechaInicioPlan) {
+                    <span class="date-item"><i class="pi pi-calendar"></i> {{ p.fechaInicioPlan | date:'dd/MM/yy' }}</span>
+                  }
+                  @if (p.fechaFinPlan) {
+                    <span class="date-item end"><i class="pi pi-flag"></i> {{ p.fechaFinPlan | date:'dd/MM/yy' }}</span>
+                  }
+                </div>
+              </td>
+              <td class="td-actions" (click)="$event.stopPropagation()">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="verDashboard(p)" pTooltip="Dashboard" tooltipPosition="top">
+                    <i class="pi pi-chart-bar"></i>
+                  </button>
+                  <button class="act-btn" (click)="abrirEditar(p)" pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="act-btn danger" (click)="eliminar(p)" pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <div class="table-footer">
+      <span>Mostrando {{ proyectos().length }} de {{ total() }} proyectos</span>
+      <div class="pagination">
+        <button class="page-btn" (click)="anterior()" [disabled]="pagina() === 1">
+          <i class="pi pi-chevron-left"></i>
+        </button>
+        <span class="page-info">{{ pagina() }} / {{ totalPaginas }}</span>
+        <button class="page-btn" (click)="siguiente()" [disabled]="pagina() >= totalPaginas">
+          <i class="pi pi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+<app-proyecto-panel
+  [visible]="panelVisible()"
+  [proyecto]="proyectoEdit()"
+  (onCerrar)="cerrarPanel()"
+  (onGuardado)="onGuardado()" />

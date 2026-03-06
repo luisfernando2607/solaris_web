@@ -1,0 +1,104 @@
+@if (visible()) { <div class="panel-backdrop" (click)="cerrar()"></div> }
+
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-folder"></i></div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">{{ esEdicion() ? 'Edita los datos del proyecto' : 'Registro de nuevo proyecto' }}</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+
+  <div class="panel-body">
+    @if (error()) {
+      <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div>
+    }
+
+    <form [formGroup]="form" class="panel-form">
+
+      <!-- Identificación -->
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-tag"></i> Identificación</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Código <span class="req">*</span></label>
+            <input pInputText formControlName="codigo" placeholder="PROJ-001" class="mono-input" />
+            @if (invalid('codigo')) { <small class="err">Requerido</small> }
+          </div>
+          <div class="field field-wide">
+            <label>Nombre <span class="req">*</span></label>
+            <input pInputText formControlName="nombre" placeholder="Nombre del proyecto" />
+            @if (invalid('nombre')) { <small class="err">Mínimo 3 caracteres</small> }
+          </div>
+        </div>
+        <div class="field">
+          <label>Descripción</label>
+          <textarea pTextarea formControlName="descripcion" rows="3" placeholder="Descripción del proyecto..." class="w-full"></textarea>
+        </div>
+      </div>
+
+      <!-- Clasificación -->
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-sliders-h"></i> Clasificación</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Tipo <span class="req">*</span></label>
+            <p-select formControlName="tipoProyecto" [options]="tipoOpts"
+                      optionLabel="label" optionValue="value"
+                      placeholder="Seleccionar tipo" styleClass="w-full" />
+          </div>
+          <div class="field">
+            <label>Prioridad <span class="req">*</span></label>
+            <p-select formControlName="prioridad" [options]="prioridadOpts"
+                      optionLabel="label" optionValue="value"
+                      placeholder="Seleccionar prioridad" styleClass="w-full" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Fechas -->
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-calendar"></i> Planificación</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Fecha inicio plan</label>
+            <p-datepicker formControlName="fechaInicioPlan" dateFormat="dd/mm/yy"
+                          placeholder="DD/MM/AAAA" styleClass="w-full" [showIcon]="true" />
+          </div>
+          <div class="field">
+            <label>Fecha fin plan</label>
+            <p-datepicker formControlName="fechaFinPlan" dateFormat="dd/mm/yy"
+                          placeholder="DD/MM/AAAA" styleClass="w-full" [showIcon]="true" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Presupuesto total (USD)</label>
+          <p-inputnumber formControlName="presupuestoTotal" mode="currency" currency="USD"
+                         locale="es-EC" styleClass="w-full" [minFractionDigits]="2" />
+        </div>
+      </div>
+
+      <!-- Ubicación -->
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-map-marker"></i> Ubicación</div>
+        <div class="field">
+          <label>Dirección</label>
+          <input pInputText formControlName="direccion" placeholder="Dirección del proyecto" />
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true"
+              [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button
+      [label]="esEdicion() ? 'Guardar cambios' : 'Crear proyecto'"
+      [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'"
+      [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>
