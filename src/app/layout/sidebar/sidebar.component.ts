@@ -72,8 +72,7 @@ export class SidebarComponent {
       icon:  'pi pi-folder',
       children: [
         { label: 'Lista de Proyectos', icon: 'pi pi-list',      route: '/proyectos/lista'      },
-        { label: 'Dashboard',          icon: 'pi pi-chart-bar', route: '/proyectos/lista'      },
-      ]
+     ]
     },
   ];
 
