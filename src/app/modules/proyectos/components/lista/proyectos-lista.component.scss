@@ -227,3 +227,11 @@
   &[disabled] { opacity: .35; cursor: not-allowed; }
 }
 .page-info { font-size: .73rem; color: var(--text-muted); }
+
+// Botón detalle destacado
+.act-btn.primary {
+  background: var(--primary-bg);
+  border-color: rgba(59,130,246,.4);
+  color: var(--primary);
+  &:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+}

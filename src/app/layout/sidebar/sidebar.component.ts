@@ -30,7 +30,7 @@ export class SidebarComponent {
       icon:  'pi pi-home',
       route: '/dashboard'
     },
-        {
+    {
       label: 'Empresas',
       icon:  'pi pi-building',
       route: '/empresas',
@@ -69,16 +69,14 @@ export class SidebarComponent {
     },
     {
       label: 'Proyectos',
-      icon:  'pi pi-folder',
+      icon:  'pi pi-folder-open',
       children: [
-        { label: 'Lista de Proyectos', icon: 'pi pi-list',      route: '/proyectos/lista'      },
-     ]
+        { label: 'Lista de Proyectos',  icon: 'pi pi-list',         route: '/proyectos/lista'      },
+      ]
     },
   ];
 
   expandidos = signal<Set<string>>(new Set([]));
-
-    // expandidos = signal<Set<string>>(new Set(['Seguridad']));
 
   toggleCollapse(): void { this.collapsed.update(v => !v); }
 

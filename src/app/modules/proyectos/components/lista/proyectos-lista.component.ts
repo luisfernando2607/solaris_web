@@ -79,6 +79,7 @@ export class ProyectosListaComponent implements OnInit {
     this.pagina.set(1); this.cargar();
   }
 
+  verDetalle(p: ProyectoListDto): void   { this.router.navigate(['/proyectos', p.id, 'detalle']); }
   verDashboard(p: ProyectoListDto): void { this.router.navigate(['/proyectos', p.id, 'dashboard']); }
   abrirCrear(): void  { this.proyectoEdit.set(null); this.panelVisible.set(true); }
   abrirEditar(p: ProyectoListDto): void { this.proyectoEdit.set(p); this.panelVisible.set(true); }

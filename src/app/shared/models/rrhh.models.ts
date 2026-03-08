@@ -1,5 +1,5 @@
 // =====================================================================
-// SOLARIS PLATFORM — Módulo RRHH — Modelos TypeScript
+// SOLARIS Web Desktop — Módulo RRHH — Modelos TypeScript
 // Patrón: usuario.models.ts + common.models.ts
 // =====================================================================
 

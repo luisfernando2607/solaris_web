@@ -129,6 +129,9 @@
               </td>
               <td class="td-actions" (click)="$event.stopPropagation()">
                 <div class="actions-wrap">
+                  <button class="act-btn primary" (click)="verDetalle(p)" pTooltip="Ver detalle" tooltipPosition="top">
+                    <i class="pi pi-folder-open"></i>
+                  </button>
                   <button class="act-btn" (click)="verDashboard(p)" pTooltip="Dashboard" tooltipPosition="top">
                     <i class="pi pi-chart-bar"></i>
                   </button>

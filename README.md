@@ -89,9 +89,9 @@ ng build --configuration production
 
 ------------------------------------------------------------------------
 
-## 🏢 About Solaris Platform
+## 🏢 About Solaris Web Desktop
 
-Solaris Platform is an enterprise ERP ecosystem composed of:
+Solaris Web Desktop is an enterprise ERP ecosystem composed of:
 
 -   Backend API (.NET)
 -   Angular Frontend
@@ -102,5 +102,5 @@ Solaris Platform is an enterprise ERP ecosystem composed of:
 
 ## 📄 License
 
-Proprietary -- Solaris Platform © 2026
+Proprietary -- DevStar © 2026
 # solaris_web
