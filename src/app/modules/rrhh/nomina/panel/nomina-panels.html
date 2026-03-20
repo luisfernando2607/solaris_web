@@ -1,0 +1,127 @@
+<!-- concepto-panel.component.html -->
+<!-- Path: rrhh/nomina/panel/concepto-panel.component.html -->
+@if (visible()) { <div class="panel-backdrop" (click)="cerrar()"></div> }
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-list"></i></div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">{{ esEdicion() ? 'Edita el concepto' : 'Nuevo concepto de nómina' }}</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+  <div class="panel-body">
+    @if (error()) { <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div> }
+    <form [formGroup]="form" class="panel-form">
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-info-circle"></i> Identificación</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Código <span class="req">*</span></label>
+            <input pInputText formControlName="codigo" placeholder="SUELDO" class="mono-input" />
+            @if (invalid('codigo')) { <small class="err">Requerido</small> }
+          </div>
+          <div class="field">
+            <label>Tipo <span class="req">*</span></label>
+            <p-select formControlName="tipo" [options]="tipoOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre <span class="req">*</span></label>
+          <input pInputText formControlName="nombre" placeholder="Sueldo básico" />
+          @if (invalid('nombre')) { <small class="err">Requerido</small> }
+        </div>
+        <div class="field">
+          <label>Descripción</label>
+          <input pInputText formControlName="descripcion" />
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-calculator"></i> Cálculo</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Forma de cálculo</label>
+            <p-select formControlName="formaCalculo"
+              [options]="[{label:'Fijo', value:1},{label:'Porcentaje', value:2},{label:'Fórmula', value:3}]"
+              optionLabel="label" optionValue="value" styleClass="w-full" />
+          </div>
+          <div class="field">
+            <label>Valor fijo</label>
+            <input pInputText type="number" formControlName="valorFijo" step="0.01" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Porcentaje</label>
+          <input pInputText type="number" formControlName="porcentaje" step="0.0001" />
+        </div>
+        <div class="field" style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem">
+          <p-checkbox formControlName="esObligatorio" [binary]="true" inputId="esObligatorio" />
+          <label for="esObligatorio" style="cursor:pointer">Es obligatorio</label>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button [label]="esEdicion() ? 'Guardar cambios' : 'Crear concepto'" [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'" [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>
+
+
+<!-- periodo-panel.component.html -->
+<!-- Path: rrhh/nomina/panel/periodo-panel.component.html -->
+@if (visible()) { <div class="panel-backdrop" (click)="cerrar()"></div> }
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-calendar"></i></div>
+      <div><h2 class="panel-title">Nuevo Período</h2><p class="panel-sub">Período de nómina</p></div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+  <div class="panel-body">
+    @if (error()) { <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div> }
+    <form [formGroup]="form" class="panel-form">
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-info-circle"></i> Datos</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Año <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="anno" />
+          </div>
+          <div class="field">
+            <label>N° Período <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="numeroPeriodo" min="1" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Descripción <span class="req">*</span></label>
+          <input pInputText formControlName="descripcion" placeholder="Enero 2025" />
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-calendar"></i> Fechas</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Inicio <span class="req">*</span></label>
+            <input pInputText type="date" formControlName="fechaInicio" />
+          </div>
+          <div class="field">
+            <label>Fin <span class="req">*</span></label>
+            <input pInputText type="date" formControlName="fechaFin" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Fecha de pago</label>
+          <input pInputText type="date" formControlName="fechaPago" />
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button label="Crear período" icon="pi pi-plus" [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>

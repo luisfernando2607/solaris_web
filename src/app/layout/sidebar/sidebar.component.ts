@@ -62,9 +62,15 @@ export class SidebarComponent {
       label: 'Recursos Humanos',
       icon:  'pi pi-users',
       children: [
-        { label: 'Empleados',     icon: 'pi pi-id-card',   route: '/rrhh/empleados'     },
-        { label: 'Departamentos', icon: 'pi pi-sitemap',   route: '/rrhh/departamentos' },
-        { label: 'Puestos',       icon: 'pi pi-briefcase', route: '/rrhh/puestos'       },
+        { label: 'Empleados',      icon: 'pi pi-id-card',      route: '/rrhh/empleados'      },
+        { label: 'Departamentos',  icon: 'pi pi-sitemap',      route: '/rrhh/departamentos'  },
+        { label: 'Puestos',        icon: 'pi pi-briefcase',    route: '/rrhh/puestos'        },
+        { label: 'Horarios',       icon: 'pi pi-clock',        route: '/rrhh/horarios'       },
+        { label: 'Nómina',         icon: 'pi pi-dollar',       route: '/rrhh/nomina'         },
+        { label: 'Préstamos',      icon: 'pi pi-credit-card',  route: '/rrhh/prestamos'      },
+        { label: 'Evaluaciones',   icon: 'pi pi-star',         route: '/rrhh/evaluaciones'   },
+        { label: 'Capacitaciones', icon: 'pi pi-graduation-cap',route: '/rrhh/capacitaciones'},
+        { label: 'Selección',      icon: 'pi pi-search',       route: '/rrhh/seleccion'      },
       ]
     },
     {

@@ -1,0 +1,83 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Horarios</h1>
+      <p class="page-sub">{{ horariosFiltrados().length }} horarios registrados</p>
+    </div>
+    <p-button label="Nuevo horario" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Buscar por nombre o código..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) { <button class="search-clear" (click)="busqueda.set('')"><i class="pi pi-times"></i></button> }
+    </div>
+    <p-select [options]="tipoOptions" placeholder="Todos los tipos"
+              [ngModel]="filtroTipo()" (ngModelChange)="filtroTipo.set($event)"
+              [showClear]="true" styleClass="filter-select" />
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state"><div class="loading-dots"><span></span><span></span><span></span></div><p>Cargando horarios...</p></div>
+  } @else if (horariosFiltrados().length === 0) {
+    <div class="empty-state"><i class="pi pi-clock"></i><p>No se encontraron horarios</p></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Horario</th>
+            <th>Código</th>
+            <th>Tipo</th>
+            <th>Entrada / Salida</th>
+            <th>Horas/día</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (h of horariosFiltrados(); track h.id) {
+            <tr>
+              <td>
+                <div class="item-cell">
+                  <div class="item-avatar"><i class="pi pi-clock"></i></div>
+                  <div class="item-nombre">{{ h.nombre }}</div>
+                </div>
+              </td>
+              <td><code class="mono-chip">{{ h.codigo }}</code></td>
+              <td><span class="tag">{{ tipoLabel(h.tipo) }}</span></td>
+              <td>
+                @if (h.horaEntrada && h.horaSalida) {
+                  <span class="sub-text">{{ h.horaEntrada }} – {{ h.horaSalida }}</span>
+                } @else {
+                  <span class="sub-text">—</span>
+                }
+              </td>
+              <td><span class="sub-text">{{ h.horasDiarias }}h</span></td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(h)" pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  <button class="act-btn danger" (click)="eliminar(h)" pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">Mostrando {{ horariosFiltrados().length }} de {{ horarios().length }} horarios</div>
+  }
+</div>
+
+<app-horario-panel [visible]="panelVisible()" [horario]="horarioEdicion()"
+                   (onCerrar)="cerrarPanel()" (onGuardado)="onGuardado()" />

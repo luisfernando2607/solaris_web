@@ -1,0 +1,142 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Selección de Personal</h1>
+      <p class="page-sub">Requisiciones, candidatos y procesos de selección</p>
+    </div>
+  </div>
+
+  <p-tabs [(value)]="tabActivo">
+    <p-tablist>
+      <p-tab [value]="0"><i class="pi pi-file-edit"></i> Requisiciones</p-tab>
+      <p-tab [value]="1"><i class="pi pi-users"></i> Candidatos</p-tab>
+      <p-tab [value]="2"><i class="pi pi-search"></i> Procesos</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <!-- ── Requisiciones ── -->
+      <p-tabpanel [value]="0">
+        <div class="tab-actions">
+          <p-button label="Nueva requisición" icon="pi pi-plus" (onClick)="panelRequisicion.set(true)" />
+        </div>
+        @if (cargandoReq()) {
+          <div class="loading-state"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+        } @else if (requisiciones().length === 0) {
+          <div class="empty-state"><i class="pi pi-file-edit"></i><p>No se encontraron requisiciones</p></div>
+        } @else {
+          <div class="table-wrap" style="margin-top:1rem">
+            <table class="data-table">
+              <thead>
+                <tr><th>Número</th><th>Puesto</th><th>Departamento</th><th>Plazas</th><th>Estado</th><th class="th-actions">Acciones</th></tr>
+              </thead>
+              <tbody>
+                @for (r of requisiciones(); track r.id) {
+                  <tr>
+                    <td><code class="mono-chip">{{ r.numero }}</code></td>
+                    <td><span class="item-nombre">{{ r.puestoNombre ?? '—' }}</span></td>
+                    <td><span class="sub-text">{{ r.departamentoNombre ?? '—' }}</span></td>
+                    <td><span class="sub-text">{{ r.cantidadPlazas }}</span></td>
+                    <td>
+                      <span class="estado-badge" [class.activo]="r.estado === 3 || r.estado === 4">
+                        <span class="dot"></span>{{ r.estado }}
+                      </span>
+                    </td>
+                    <td class="td-actions">
+                      <div class="actions-wrap">
+                        <button class="act-btn danger" (click)="eliminarRequisicion(r.id)"
+                                pTooltip="Eliminar" tooltipPosition="top">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </p-tabpanel>
+
+      <!-- ── Candidatos ── -->
+      <p-tabpanel [value]="1">
+        <div class="tab-actions">
+          <p-button label="Nuevo candidato" icon="pi pi-plus" (onClick)="panelCandidato.set(true)" />
+        </div>
+        @if (cargandoCand()) {
+          <div class="loading-state"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+        } @else if (candidatos().length === 0) {
+          <div class="empty-state"><i class="pi pi-users"></i><p>No se encontraron candidatos</p></div>
+        } @else {
+          <div class="table-wrap" style="margin-top:1rem">
+            <table class="data-table">
+              <thead>
+                <tr><th>Candidato</th><th>Email</th><th>Teléfono</th><th class="th-actions">Acciones</th></tr>
+              </thead>
+              <tbody>
+                @for (c of candidatos(); track c.id) {
+                  <tr>
+                    <td>
+                      <div class="item-cell">
+                        <div class="item-avatar">{{ c.primerNombre[0] }}</div>
+                        <span class="item-nombre">{{ c.primerNombre }} {{ c.primerApellido }}</span>
+                      </div>
+                    </td>
+                    <td><span class="sub-text">{{ c.email }}</span></td>
+                    <td><span class="sub-text">{{ c.telefono ?? '—' }}</span></td>
+                    <td class="td-actions">
+                      <div class="actions-wrap">
+                        <button class="act-btn danger"
+                                (click)="eliminarCandidato(c.id, c.primerNombre + ' ' + c.primerApellido)"
+                                pTooltip="Eliminar" tooltipPosition="top">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </p-tabpanel>
+
+      <!-- ── Procesos ── -->
+      <p-tabpanel [value]="2">
+        @if (procesos().length === 0) {
+          <div class="empty-state" style="margin-top:2rem"><i class="pi pi-search"></i><p>No se encontraron procesos de selección</p></div>
+        } @else {
+          <div class="table-wrap" style="margin-top:1rem">
+            <table class="data-table">
+              <thead>
+                <tr><th>Responsable</th><th>Fecha inicio</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                @for (p of procesos(); track p.id) {
+                  <tr>
+                    <td><span class="item-nombre">{{ p.responsableNombre ?? '—' }}</span></td>
+                    <td><span class="sub-text">{{ p.fechaInicio }}</span></td>
+                    <td>
+                      <span class="estado-badge" [class.activo]="p.estado === 1">
+                        <span class="dot"></span>{{ p.estado === 1 ? 'Abierto' : 'Cerrado' }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>
+
+<app-requisicion-panel [visible]="panelRequisicion()"
+                       (onCerrar)="panelRequisicion.set(false)"
+                       (onGuardado)="panelRequisicion.set(false); service.listarRequisiciones().subscribe()" />
+
+<app-candidato-panel [visible]="panelCandidato()"
+                     (onCerrar)="panelCandidato.set(false)"
+                     (onGuardado)="panelCandidato.set(false); service.listarCandidatos().subscribe()" />

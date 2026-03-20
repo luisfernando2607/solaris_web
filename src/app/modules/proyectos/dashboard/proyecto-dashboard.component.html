@@ -1,0 +1,245 @@
+<p-toast position="top-right" />
+
+<!-- Loading -->
+@if (cargando()) {
+  <div class="dash-loading">
+    <div class="loading-dots"><span></span><span></span><span></span></div>
+    <p>Cargando dashboard...</p>
+  </div>
+}
+
+@if (!cargando() && dashboard()) {
+<div class="dash-page">
+
+  <!-- Breadcrumb -->
+  <div class="dash-header">
+    <div class="breadcrumb">
+      <button class="back-btn" (click)="volver()"><i class="pi pi-arrow-left"></i></button>
+      <span class="bc-sep">/</span>
+      <a routerLink="/proyectos/lista" class="bc-link">Proyectos</a>
+      <span class="bc-sep">/</span>
+      <span class="bc-current">{{ dashboard()!.nombre }}</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" (click)="cargar(proyectoId())" pTooltip="Recargar" tooltipPosition="left">
+        <i class="pi pi-refresh"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ PROYECTO INFO BAR ══ -->
+  <div class="proj-info-bar">
+
+    <!-- Avatar -->
+    <div class="pib-avatar" [attr.data-color]="getEstadoClass(dashboard()!.estado)">
+      {{ dashboard()!.nombre[0] }}
+    </div>
+
+    <!-- Identidad -->
+    <div class="pib-identity">
+      <div class="pib-badges-row">
+        <code class="proj-codigo"><i class="pi pi-hashtag"></i>{{ dashboard()!.codigo }}</code>
+        <span class="estado-badge" [attr.data-color]="getEstadoClass(dashboard()!.estado)">
+          <span class="dot"></span>{{ ESTADO_LABELS[dashboard()!.estado] }}
+        </span>
+        @if (dashboard()!.estaRetrasado) {
+          <span class="retrasado-tag"><i class="pi pi-exclamation-triangle"></i> Retrasado</span>
+        }
+      </div>
+      <h2 class="pib-nombre">{{ dashboard()!.nombre }}</h2>
+      <div class="pib-meta-row">
+        @if (dashboard()!.diasRestantes !== undefined && dashboard()!.diasRestantes !== null) {
+          <span class="pib-meta-item dias" [class.urgente]="dashboard()!.diasRestantes! <= 14">
+            <i class="pi pi-clock"></i>
+            {{ dashboard()!.diasRestantes! > 0 ? dashboard()!.diasRestantes + ' días restantes' : 'Vencido' }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Avance real -->
+    <div class="pib-avance-col">
+      <span class="pib-col-label">Avance Real</span>
+      <div class="pib-avance-wrap">
+        <div class="pib-avance-bar">
+          <div class="pib-avance-fill" [style.width.%]="dashboard()!.porcentajeAvanceReal"></div>
+        </div>
+        <span class="pib-avance-pct">{{ dashboard()!.porcentajeAvanceReal | number:'1.0-1' }}%</span>
+      </div>
+      <span class="pib-avance-sub">
+        Plan: {{ dashboard()!.porcentajeAvancePlan | number:'1.0-1' }}%
+        <span class="pib-desv" [class.neg]="getDesviacion() < 0" [class.pos]="getDesviacion() > 0">
+          ({{ getDesviacion() > 0 ? '+' : '' }}{{ getDesviacion() | number:'1.0-1' }}%)
+        </span>
+      </span>
+    </div>
+
+    <!-- KPI chips -->
+    <div class="pib-kpis-col">
+      <span class="pib-col-label">Índices EVM</span>
+      <div class="pib-kpis">
+        @for (kpi of kpisOrdenados().slice(0, 2); track kpi.id) {
+          <div class="pib-kpi-chip" [attr.data-color]="getKpiColor(kpi)">
+            <div class="pib-chip-label">{{ kpi.tipoKpi }}</div>
+            <div class="pib-chip-value">{{ kpi.valor | number:'1.2-2' }}</div>
+            @if (kpi.valorMeta !== null && kpi.valorMeta !== undefined) {
+              <div class="pib-chip-meta">
+                <span class="semaforo-dot" [attr.data-color]="getKpiColor(kpi)"></span>
+                Meta &ge; {{ kpi.valorMeta | number:'1.2-2' }}
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="pib-cta-col">
+      <button class="btn-ver-detalle" (click)="verDetalle()">
+        <i class="pi pi-file-edit"></i>
+        Ver ficha completa
+      </button>
+    </div>
+
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="section-title">Indicadores EVM</div>
+  <div class="kpi-grid">
+
+    <div class="kpi-card avance-card">
+      <div class="kpi-header">
+        <span class="kpi-label">Avance del Proyecto</span>
+        <i class="pi pi-chart-line kpi-icon"></i>
+      </div>
+      <div class="avance-compare">
+        <div class="avance-item">
+          <span class="avance-pct plan">{{ dashboard()!.porcentajeAvancePlan | number:'1.0-1' }}%</span>
+          <span class="avance-lbl">Planificado</span>
+        </div>
+        <div class="avance-divider"></div>
+        <div class="avance-item">
+          <span class="avance-pct real"
+            [class.behind]="dashboard()!.porcentajeAvanceReal < dashboard()!.porcentajeAvancePlan">
+            {{ dashboard()!.porcentajeAvanceReal | number:'1.0-1' }}%
+          </span>
+          <span class="avance-lbl">Real</span>
+        </div>
+      </div>
+      <div class="double-bar">
+        <div class="bar-track"><div class="bar-fill plan" [style.width.%]="dashboard()!.porcentajeAvancePlan"></div></div>
+        <div class="bar-track">
+          <div class="bar-fill real" [style.width.%]="dashboard()!.porcentajeAvanceReal"
+               [class.behind]="dashboard()!.porcentajeAvanceReal < dashboard()!.porcentajeAvancePlan"></div>
+        </div>
+      </div>
+      <div class="desviacion" [class.neg]="getDesviacion() < 0" [class.pos]="getDesviacion() > 0">
+        <i [class]="getDesviacion() >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
+        {{ getDesviacion() | number:'1.0-1' }}% desviación
+      </div>
+    </div>
+
+    <div class="kpi-card presup-card">
+      <div class="kpi-header">
+        <span class="kpi-label">Presupuesto</span>
+        <i class="pi pi-dollar kpi-icon"></i>
+      </div>
+      <div class="presup-nums">
+        <div class="presup-item">
+          <span class="presup-val">{{ formatMoney(dashboard()!.presupuestoTotal) }}</span>
+          <span class="presup-lbl">Presupuestado</span>
+        </div>
+        <div class="presup-item">
+          <span class="presup-val real" [class.over]="dashboard()!.costoRealTotal > dashboard()!.presupuestoTotal">
+            {{ formatMoney(dashboard()!.costoRealTotal) }}
+          </span>
+          <span class="presup-lbl">Costo real</span>
+        </div>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill presup"
+             [class.over]="dashboard()!.costoRealTotal > dashboard()!.presupuestoTotal"
+             [style.width.%]="dashboard()!.presupuestoTotal > 0 ? (dashboard()!.costoRealTotal / dashboard()!.presupuestoTotal * 100) : 0">
+        </div>
+      </div>
+      <div class="desviacion" [class.neg]="getCostoDesviacion() > 0" [class.pos]="getCostoDesviacion() < 0">
+        <i [class]="getCostoDesviacion() <= 0 ? 'pi pi-arrow-down' : 'pi pi-arrow-up'"></i>
+        {{ getCostoDesviacion() | number:'1.0-1' }}% vs presupuesto
+      </div>
+    </div>
+
+    @for (kpi of kpisOrdenados(); track kpi.id) {
+      <div class="kpi-card evm-card" [attr.data-color]="getKpiColor(kpi)">
+        <div class="kpi-header">
+          <span class="kpi-label">{{ kpi.tipoKpi }}</span>
+          <span class="semaforo-dot" [attr.data-color]="getKpiColor(kpi)"></span>
+        </div>
+        <div class="kpi-value" [attr.data-color]="getKpiColor(kpi)">{{ kpi.valor | number:'1.2-2' }}</div>
+        @if (kpi.valorMeta !== null && kpi.valorMeta !== undefined) {
+          <div class="kpi-meta">Meta: {{ kpi.valorMeta | number:'1.2-2' }}</div>
+        }
+        <div class="kpi-name">{{ kpi.nombre }}</div>
+      </div>
+    }
+  </div>
+
+  <!-- Bottom grid -->
+  <div class="bottom-grid">
+
+    <div class="card-panel">
+      <div class="panel-head">
+        <span><i class="pi pi-flag"></i> Hitos Cercanos</span>
+        <span class="badge-count">{{ dashboard()!.hitosCercanos.length }}</span>
+      </div>
+      @if (dashboard()!.hitosCercanos.length === 0) {
+        <div class="panel-empty"><i class="pi pi-check-circle"></i><p>Sin hitos próximos</p></div>
+      } @else {
+        <div class="hitos-list">
+          @for (h of dashboard()!.hitosCercanos; track h.id) {
+            <div class="hito-item">
+              <div class="hito-estado" [attr.data-color]="getHitoClass(h.estado)"></div>
+              <div class="hito-info">
+                <span class="hito-nombre">{{ h.nombre }}</span>
+                <span class="hito-fecha"><i class="pi pi-calendar"></i> {{ h.fechaCompromiso | date:'dd/MM/yy' }}</span>
+              </div>
+              <span class="hito-badge" [attr.data-color]="getHitoClass(h.estado)">{{ h.estado }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="card-panel">
+      <div class="panel-head">
+        <span><i class="pi pi-bell"></i> Alertas Activas</span>
+        @if (alertasCriticas().length > 0) {
+          <span class="badge-count crit">{{ alertasCriticas().length }} críticas</span>
+        } @else {
+          <span class="badge-count">{{ dashboard()!.alertasActivas.length }}</span>
+        }
+      </div>
+      @if (dashboard()!.alertasActivas.length === 0) {
+        <div class="panel-empty"><i class="pi pi-shield"></i><p>Sin alertas activas</p></div>
+      } @else {
+        <div class="alertas-list">
+          @for (a of dashboard()!.alertasActivas; track a.id) {
+            <div class="alerta-item" [attr.data-sev]="getSeveridadClass(a.severidad)">
+              <div class="alerta-icon" [attr.data-sev]="getSeveridadClass(a.severidad)">
+                <i [class]="a.severidad === SeveridadAlerta.Critica ? 'pi pi-times-circle'
+                           : a.severidad === SeveridadAlerta.Warning ? 'pi pi-exclamation-triangle'
+                           : 'pi pi-info-circle'"></i>
+              </div>
+              <div class="alerta-body">
+                <span class="alerta-titulo">{{ a.titulo }}</span>
+                <span class="alerta-msg">{{ a.mensaje }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+
+</div>
+}

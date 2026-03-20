@@ -1,0 +1,94 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Capacitaciones</h1>
+      <p class="page-sub">{{ capFiltradas().length }} capacitaciones registradas</p>
+    </div>
+    <p-button label="Nueva capacitación" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Buscar por nombre o código..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) { <button class="search-clear" (click)="busqueda.set('')"><i class="pi pi-times"></i></button> }
+    </div>
+    <p-select [options]="estadoOptions" placeholder="Todos los estados"
+              [ngModel]="filtroEstado()" (ngModelChange)="filtroEstado.set($event)"
+              [showClear]="true" styleClass="filter-select" />
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state"><div class="loading-dots"><span></span><span></span><span></span></div><p>Cargando capacitaciones...</p></div>
+  } @else if (capFiltradas().length === 0) {
+    <div class="empty-state"><i class="pi pi-graduation-cap"></i><p>No se encontraron capacitaciones</p></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Capacitación</th>
+            <th>Código</th>
+            <th>Fechas</th>
+            <th>Horas</th>
+            <th>Estado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of capFiltradas(); track c.id) {
+            <tr>
+              <td>
+                <div class="item-cell">
+                  <div class="item-avatar"><i class="pi pi-graduation-cap"></i></div>
+                  <div>
+                    <div class="item-nombre">{{ c.nombre }}</div>
+                    @if (c.instructor) { <div class="item-sub">{{ c.instructor }}</div> }
+                  </div>
+                </div>
+              </td>
+              <td><code class="mono-chip">{{ c.codigo }}</code></td>
+              <td><span class="sub-text">{{ c.fechaInicio }} — {{ c.fechaFin }}</span></td>
+              <td><span class="sub-text">{{ c.horasDuracion ?? '—' }}h</span></td>
+              <td>
+                <span class="estado-badge" [class.activo]="c.estado === 2" [class.inactivo]="c.estado === 4">
+                  <span class="dot"></span>{{ estadoLabel(c.estado) }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  <button class="act-btn" (click)="abrirEditar(c)" pTooltip="Editar" tooltipPosition="top">
+                    <i class="pi pi-pencil"></i>
+                  </button>
+                  @if (c.estado === 1) {
+                    <button class="act-btn" (click)="cambiarEstado(c, 2)" pTooltip="Iniciar" tooltipPosition="top">
+                      <i class="pi pi-play"></i>
+                    </button>
+                  }
+                  @if (c.estado === 2) {
+                    <button class="act-btn" (click)="cambiarEstado(c, 3)" pTooltip="Finalizar" tooltipPosition="top">
+                      <i class="pi pi-check"></i>
+                    </button>
+                  }
+                  <button class="act-btn danger" (click)="eliminar(c)" pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">Mostrando {{ capFiltradas().length }} de {{ capacitaciones().length }} capacitaciones</div>
+  }
+</div>
+
+<app-capacitacion-panel [visible]="panelVisible()" [capacitacion]="capEdicion()"
+                        (onCerrar)="cerrarPanel()" (onGuardado)="onGuardado()" />

@@ -1,0 +1,94 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Evaluaciones</h1>
+      <p class="page-sub">Plantillas y procesos de evaluación de desempeño</p>
+    </div>
+  </div>
+
+  <p-tabs [(value)]="tabActivo">
+    <p-tablist>
+      <p-tab [value]="0"><i class="pi pi-file"></i> Plantillas</p-tab>
+      <p-tab [value]="1"><i class="pi pi-list-check"></i> Procesos</p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <!-- ── Plantillas ── -->
+      <p-tabpanel [value]="0">
+        <div class="tab-actions">
+          <p-button label="Nueva plantilla" icon="pi pi-plus" (onClick)="panelPlantilla.set(true)" />
+        </div>
+        @if (cargandoPlant()) {
+          <div class="loading-state"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+        } @else if (plantillas().length === 0) {
+          <div class="empty-state"><i class="pi pi-file"></i><p>No se encontraron plantillas</p></div>
+        } @else {
+          <div class="table-wrap" style="margin-top:1rem">
+            <table class="data-table">
+              <thead>
+                <tr><th>Código</th><th>Nombre</th><th>Escala</th><th class="th-actions">Acciones</th></tr>
+              </thead>
+              <tbody>
+                @for (p of plantillas(); track p.id) {
+                  <tr>
+                    <td><code class="mono-chip">{{ p.codigo }}</code></td>
+                    <td><span class="item-nombre">{{ p.nombre }}</span></td>
+                    <td><span class="sub-text">{{ p.escalaMin }} — {{ p.escalaMax }}</span></td>
+                    <td class="td-actions">
+                      <div class="actions-wrap">
+                        <button class="act-btn danger" (click)="eliminarPlantilla(p.id, p.nombre)"
+                                pTooltip="Eliminar" tooltipPosition="top">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </p-tabpanel>
+
+      <!-- ── Procesos ── -->
+      <p-tabpanel [value]="1">
+        @if (cargandoProc()) {
+          <div class="loading-state"><div class="loading-dots"><span></span><span></span><span></span></div></div>
+        } @else if (procesos().length === 0) {
+          <div class="empty-state"><i class="pi pi-list-check"></i><p>No se encontraron procesos</p></div>
+        } @else {
+          <div class="table-wrap" style="margin-top:1rem">
+            <table class="data-table">
+              <thead>
+                <tr><th>Proceso</th><th>Año / Período</th><th>Fechas</th><th>Avance</th><th>Estado</th></tr>
+              </thead>
+              <tbody>
+                @for (p of procesos(); track p.id) {
+                  <tr>
+                    <td><span class="item-nombre">{{ p.nombre }}</span></td>
+                    <td><span class="sub-text">{{ p.anno }} / {{ p.periodo ?? '—' }}</span></td>
+                    <td><span class="sub-text">{{ p.fechaInicio }} — {{ p.fechaFin }}</span></td>
+                    <td>
+                      <span class="sub-text">{{ p.completadas }}/{{ p.totalEvaluaciones }}</span>
+                    </td>
+                    <td>
+                      <span class="estado-badge" [class.activo]="p.estado === 2">
+                        <span class="dot"></span>{{ p.estadoNombre ?? '—' }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+</div>
+
+<app-plantilla-panel [visible]="panelPlantilla()"
+                     (onCerrar)="panelPlantilla.set(false)"
+                     (onGuardado)="panelPlantilla.set(false); service.listarPlantillas().subscribe()" />

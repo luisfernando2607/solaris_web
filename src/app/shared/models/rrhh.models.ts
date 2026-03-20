@@ -13,6 +13,14 @@ export enum EstadoEmpleado  { Activo = 1, Licencia = 2, Vacaciones = 3, Egresado
 export enum Genero          { Masculino = 1, Femenino = 2, Otro = 3 }
 export enum EstadoCivil     { Soltero = 1, Casado = 2, Divorciado = 3, Viudo = 4, UnionLibre = 5 }
 export enum TipoCuenta      { Ahorros = 1, Corriente = 2 }
+export enum TipoHorario       { Fijo = 1, Flexible = 2, Rotativo = 3 }
+export enum EstadoCapacitacion{ Planificada = 1, EnCurso = 2, Finalizada = 3, Cancelada = 4 }
+export enum EstadoPrestamo    { Pendiente = 1, Aprobado = 2, Rechazado = 3, EnPago = 4, Cancelado = 5 }
+export enum TipoPrestamo      { Personal = 1, Quirografario = 2, Hipotecario = 3 }
+export enum EstadoRequisicion { Borrador = 1, PendienteAprobacion = 2, Aprobada = 3, EnProceso = 4, Cerrada = 5, Cancelada = 6 }
+export enum EtapaPostulacion  { Recibida = 1, Preseleccionada = 2, Entrevista = 3, Finalista = 4, Seleccionada = 5, Descartada = 6 }
+export enum TipoConcepto      { Ingreso = 1, Descuento = 2, AportePatronal = 3 }
+export enum EstadoPeriodo     { Abierto = 1, Cerrado = 2, Pagado = 3 }
 
 // ─── Labels (mismo patrón que ESTADO_USUARIO_LABELS) ─────────────────
 
@@ -265,4 +273,350 @@ export interface ActualizarEmpleadoRequest {
   bancoId?: number;
   tipoCuenta?: number;
   numeroCuenta?: string;
+}
+
+export const TIPO_HORARIO_LABELS: Record<number, string> = {
+  [TipoHorario.Fijo]:      'Fijo',
+  [TipoHorario.Flexible]:  'Flexible',
+  [TipoHorario.Rotativo]:  'Rotativo',
+};
+export const ESTADO_CAPACITACION_LABELS: Record<number, string> = {
+  [EstadoCapacitacion.Planificada]: 'Planificada',
+  [EstadoCapacitacion.EnCurso]:     'En Curso',
+  [EstadoCapacitacion.Finalizada]:  'Finalizada',
+  [EstadoCapacitacion.Cancelada]:   'Cancelada',
+};
+export const ESTADO_PRESTAMO_LABELS: Record<number, string> = {
+  [EstadoPrestamo.Pendiente]:  'Pendiente',
+  [EstadoPrestamo.Aprobado]:   'Aprobado',
+  [EstadoPrestamo.Rechazado]:  'Rechazado',
+  [EstadoPrestamo.EnPago]:     'En Pago',
+  [EstadoPrestamo.Cancelado]:  'Cancelado',
+};
+export const TIPO_PRESTAMO_LABELS: Record<number, string> = {
+  [TipoPrestamo.Personal]:       'Personal',
+  [TipoPrestamo.Quirografario]:  'Quirografario',
+  [TipoPrestamo.Hipotecario]:    'Hipotecario',
+};
+export const ESTADO_REQUISICION_LABELS: Record<number, string> = {
+  [EstadoRequisicion.Borrador]:             'Borrador',
+  [EstadoRequisicion.PendienteAprobacion]:  'Pendiente Aprobación',
+  [EstadoRequisicion.Aprobada]:             'Aprobada',
+  [EstadoRequisicion.EnProceso]:            'En Proceso',
+  [EstadoRequisicion.Cerrada]:              'Cerrada',
+  [EstadoRequisicion.Cancelada]:            'Cancelada',
+};
+export const TIPO_CONCEPTO_LABELS: Record<number, string> = {
+  [TipoConcepto.Ingreso]:          'Ingreso',
+  [TipoConcepto.Descuento]:        'Descuento',
+  [TipoConcepto.AportePatronal]:   'Aporte Patronal',
+};
+
+
+export const TIPO_HORARIO_OPTIONS         = toOptions(TIPO_HORARIO_LABELS);
+export const ESTADO_CAPACITACION_OPTIONS  = toOptions(ESTADO_CAPACITACION_LABELS);
+export const ESTADO_PRESTAMO_OPTIONS      = toOptions(ESTADO_PRESTAMO_LABELS);
+export const TIPO_PRESTAMO_OPTIONS        = toOptions(TIPO_PRESTAMO_LABELS);
+export const ESTADO_REQUISICION_OPTIONS   = toOptions(ESTADO_REQUISICION_LABELS);
+export const TIPO_CONCEPTO_OPTIONS        = toOptions(TIPO_CONCEPTO_LABELS);
+
+// ─── Horario ──────────────────────────────────────────────────────────
+
+export interface Horario {
+  id: number;
+  empresaId: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: TipoHorario;
+  horaEntrada?: string;
+  horaSalida?: string;
+  horasDiarias: number;
+  diasLaborables?: string;
+  toleranciaEntradaMin: number;
+  toleranciaSalidaMin: number;
+}
+
+export interface CrearHorarioRequest {
+  empresaId: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: number;
+  horaEntrada?: string;
+  horaSalida?: string;
+  horasDiarias: number;
+  diasLaborables?: string;
+  toleranciaEntradaMin: number;
+  toleranciaSalidaMin: number;
+}
+
+export interface ActualizarHorarioRequest {
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: number;
+  horaEntrada?: string;
+  horaSalida?: string;
+  horasDiarias: number;
+  diasLaborables?: string;
+  toleranciaEntradaMin: number;
+  toleranciaSalidaMin: number;
+}
+
+// ─── Nómina ───────────────────────────────────────────────────────────
+
+export interface ConceptoNomina {
+  id: number;
+  empresaId: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: TipoConcepto;
+  formaCalculo: number;
+  porcentaje?: number;
+  valorFijo?: number;
+  esObligatorio: boolean;
+  esSistema: boolean;
+  activo: boolean;
+}
+
+export interface CrearConceptoNominaRequest {
+  empresaId: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: number;
+  formaCalculo: number;
+  porcentaje?: number;
+  valorFijo?: number;
+  esObligatorio: boolean;
+}
+
+export interface PeriodoNomina {
+  id: number;
+  empresaId: number;
+  anno: number;
+  numeroPeriodo: number;
+  tipoPeriodo: number;
+  descripcion: string;
+  fechaInicio: string;
+  fechaFin: string;
+  fechaPago?: string;
+  estado: EstadoPeriodo;
+}
+
+export interface CrearPeriodoRequest {
+  empresaId: number;
+  anno: number;
+  numeroPeriodo: number;
+  tipoPeriodo: number;
+  descripcion: string;
+  fechaInicio: string;
+  fechaFin: string;
+  fechaPago?: string;
+}
+
+// ─── Préstamo ─────────────────────────────────────────────────────────
+
+export interface Prestamo {
+  id: number;
+  empresaId: number;
+  empleadoId: number;
+  empleadoNombre?: string;
+  numero: string;
+  tipo: TipoPrestamo;
+  montoSolicitado: number;
+  montoAprobado?: number;
+  numeroCuotas: number;
+  cuotaMensual?: number;
+  fechaSolicitud: string;
+  fechaAprobacion?: string;
+  fechaPrimerDescuento?: string;
+  motivo?: string;
+  estado: EstadoPrestamo;
+  saldoPendiente: number;
+}
+
+export interface CrearPrestamoRequest {
+  empresaId: number;
+  empleadoId: number;
+  tipo: number;
+  montoSolicitado: number;
+  numeroCuotas: number;
+  motivo?: string;
+  fechaSolicitud: string;
+}
+
+// ─── Evaluaciones ─────────────────────────────────────────────────────
+
+export interface PlantillaEvaluacion {
+  id: number;
+  empresaId: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: number;
+  escalaMin: number;
+  escalaMax: number;
+  instrucciones?: string;
+  activo: boolean;
+  criterios?: PlantillaCriterio[];
+}
+
+export interface PlantillaCriterio {
+  id: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  peso: number;
+  orden: number;
+  criterioPadreId?: number;
+  hijos?: PlantillaCriterio[];
+}
+
+export interface CrearPlantillaRequest {
+  empresaId: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: number;
+  escalaMin: number;
+  escalaMax: number;
+  instrucciones?: string;
+  criterios: CrearCriterioRequest[];
+}
+
+export interface CrearCriterioRequest {
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  peso: number;
+  orden: number;
+  criterioPadreId?: number;
+}
+
+export interface EvaluacionProceso {
+  id: number;
+  empresaId: number;
+  nombre: string;
+  descripcion?: string;
+  anno: number;
+  periodo?: string;
+  fechaInicio: string;
+  fechaFin: string;
+  estado: number;
+  estadoNombre?: string;
+  totalEvaluaciones: number;
+  completadas: number;
+}
+
+// ─── Capacitaciones ───────────────────────────────────────────────────
+
+export interface Capacitacion {
+  id: number;
+  empresaId: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: number;
+  modalidad: number;
+  instructor?: string;
+  institucion?: string;
+  fechaInicio: string;
+  fechaFin: string;
+  horasDuracion?: number;
+  costo?: number;
+  cupos?: number;
+  estado: EstadoCapacitacion;
+}
+
+export interface CrearCapacitacionRequest {
+  empresaId: number;
+  codigo: string;
+  nombre: string;
+  descripcion?: string;
+  tipo: number;
+  modalidad: number;
+  instructor?: string;
+  institucion?: string;
+  fechaInicio: string;
+  fechaFin: string;
+  horasDuracion?: number;
+  costo?: number;
+  cupos?: number;
+}
+
+// ─── Selección ────────────────────────────────────────────────────────
+
+export interface RequisicionPersonal {
+  id: number;
+  empresaId: number;
+  numero: string;
+  departamentoId: number;
+  departamentoNombre?: string;
+  puestoId: number;
+  puestoNombre?: string;
+  solicitanteId: number;
+  solicitanteNombre?: string;
+  motivo: number;
+  cantidadPlazas: number;
+  fechaSolicitud: string;
+  fechaRequerida?: string;
+  salarioOfrecidoMin?: number;
+  salarioOfrecidoMax?: number;
+  descripcionPerfil?: string;
+  estado: EstadoRequisicion;
+}
+
+export interface CrearRequisicionRequest {
+  empresaId: number;
+  departamentoId: number;
+  puestoId: number;
+  solicitanteId: number;
+  motivo: number;
+  cantidadPlazas: number;
+  fechaSolicitud: string;
+  fechaRequerida?: string;
+  salarioOfrecidoMin?: number;
+  salarioOfrecidoMax?: number;
+  descripcionPerfil?: string;
+  requisitos?: string;
+}
+
+export interface Candidato {
+  id: number;
+  empresaId: number;
+  primerNombre: string;
+  primerApellido: string;
+  email: string;
+  telefono?: string;
+  cvUrl?: string;
+  linkedinUrl?: string;
+  nivelEducacion?: number;
+  estado: number;
+}
+
+export interface CrearCandidatoRequest {
+  empresaId: number;
+  primerNombre: string;
+  primerApellido: string;
+  email: string;
+  telefono?: string;
+  cvUrl?: string;
+  linkedinUrl?: string;
+  nivelEducacion?: number;
+}
+
+export interface ProcesoSeleccion {
+  id: number;
+  empresaId: number;
+  requisicionId: number;
+  requisicionNumero?: string;
+  responsableId: number;
+  responsableNombre?: string;
+  fechaInicio: string;
+  fechaCierre?: string;
+  estado: number;
+  observaciones?: string;
 }

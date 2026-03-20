@@ -1,0 +1,79 @@
+<p-toast position="top-right" />
+<p-confirmDialog />
+<div class="page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Préstamos</h1>
+      <p class="page-sub">{{ prestamosFiltrados().length }} préstamos registrados</p>
+    </div>
+    <p-button label="Nuevo préstamo" icon="pi pi-plus" (onClick)="abrirCrear()" />
+  </div>
+
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input type="text" class="search-input" placeholder="Buscar por empleado o número..."
+             [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" />
+      @if (busqueda()) { <button class="search-clear" (click)="busqueda.set('')"><i class="pi pi-times"></i></button> }
+    </div>
+    <p-select [options]="estadoOptions" placeholder="Todos los estados"
+              [ngModel]="filtroEstado()" (ngModelChange)="filtroEstado.set($event)"
+              [showClear]="true" styleClass="filter-select" />
+    <button class="btn-refresh" (click)="cargar()" [class.spinning]="cargando()" title="Recargar">
+      <i class="pi pi-refresh"></i>
+    </button>
+  </div>
+
+  @if (cargando()) {
+    <div class="loading-state"><div class="loading-dots"><span></span><span></span><span></span></div><p>Cargando préstamos...</p></div>
+  } @else if (prestamosFiltrados().length === 0) {
+    <div class="empty-state"><i class="pi pi-credit-card"></i><p>No se encontraron préstamos</p></div>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Empleado</th>
+            <th>Monto solicitado</th>
+            <th>Cuotas</th>
+            <th>Saldo pendiente</th>
+            <th>Estado</th>
+            <th class="th-actions">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of prestamosFiltrados(); track p.id) {
+            <tr>
+              <td><code class="mono-chip">{{ p.numero }}</code></td>
+              <td><span class="item-nombre">{{ p.empleadoNombre ?? '—' }}</span></td>
+              <td><span class="sub-text">$ {{ p.montoSolicitado | number:'1.2-2' }}</span></td>
+              <td><span class="sub-text">{{ p.numeroCuotas }}</span></td>
+              <td><span class="sub-text">$ {{ p.saldoPendiente | number:'1.2-2' }}</span></td>
+              <td>
+                <span class="estado-badge" [class.activo]="p.estado === 2" [class.inactivo]="p.estado === 3">
+                  <span class="dot"></span>{{ estadoLabel(p.estado) }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <div class="actions-wrap">
+                  @if (p.estado === 1) {
+                    <button class="act-btn" (click)="aprobar(p)" pTooltip="Aprobar" tooltipPosition="top">
+                      <i class="pi pi-check"></i>
+                    </button>
+                    <button class="act-btn danger" (click)="rechazar(p)" pTooltip="Rechazar" tooltipPosition="top">
+                      <i class="pi pi-times"></i>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">Mostrando {{ prestamosFiltrados().length }} de {{ prestamos().length }} préstamos</div>
+  }
+</div>
+
+<app-prestamo-panel [visible]="panelVisible()" (onCerrar)="cerrarPanel()" (onGuardado)="onGuardado()" />

@@ -1,0 +1,95 @@
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- capacitacion-panel.component.html                          -->
+<!-- Path: rrhh/capacitaciones/panel/capacitacion-panel.component.html -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+@if (visible()) { <div class="panel-backdrop" (click)="cerrar()"></div> }
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-graduation-cap"></i></div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">{{ esEdicion() ? 'Edita los datos' : 'Registro de nueva capacitación' }}</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+  <div class="panel-body">
+    @if (error()) { <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div> }
+    <form [formGroup]="form" class="panel-form">
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-info-circle"></i> Identificación</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Código <span class="req">*</span></label>
+            <input pInputText formControlName="codigo" placeholder="CAP-001" class="mono-input" />
+            @if (invalid('codigo')) { <small class="err">Requerido</small> }
+          </div>
+          <div class="field">
+            <label>Tipo <span class="req">*</span></label>
+            <p-select formControlName="tipo" [options]="tipoOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre <span class="req">*</span></label>
+          <input pInputText formControlName="nombre" placeholder="Nombre de la capacitación" />
+          @if (invalid('nombre')) { <small class="err">Requerido</small> }
+        </div>
+        <div class="field">
+          <label>Descripción</label>
+          <input pInputText formControlName="descripcion" placeholder="Descripción opcional" />
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-building"></i> Facilitador</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Instructor</label>
+            <input pInputText formControlName="instructor" placeholder="Nombre del instructor" />
+          </div>
+          <div class="field">
+            <label>Institución</label>
+            <input pInputText formControlName="institucion" placeholder="Nombre de la institución" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Modalidad <span class="req">*</span></label>
+          <p-select formControlName="modalidad" [options]="modalidadOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-calendar"></i> Fechas y duración</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Fecha inicio <span class="req">*</span></label>
+            <input pInputText type="date" formControlName="fechaInicio" />
+            @if (invalid('fechaInicio')) { <small class="err">Requerido</small> }
+          </div>
+          <div class="field">
+            <label>Fecha fin <span class="req">*</span></label>
+            <input pInputText type="date" formControlName="fechaFin" />
+            @if (invalid('fechaFin')) { <small class="err">Requerido</small> }
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Horas duración</label>
+            <input pInputText type="number" formControlName="horasDuracion" min="1" />
+          </div>
+          <div class="field">
+            <label>Cupos</label>
+            <input pInputText type="number" formControlName="cupos" min="1" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Costo (USD)</label>
+          <input pInputText type="number" formControlName="costo" min="0" step="0.01" />
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button [label]="esEdicion() ? 'Guardar cambios' : 'Crear capacitación'" [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'" [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>

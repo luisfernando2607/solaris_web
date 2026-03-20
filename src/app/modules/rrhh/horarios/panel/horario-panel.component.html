@@ -1,0 +1,85 @@
+@if (visible()) { <div class="panel-backdrop" (click)="cerrar()"></div> }
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-clock"></i></div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">{{ esEdicion() ? 'Edita los datos del horario' : 'Registro de nuevo horario' }}</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+
+  <div class="panel-body">
+    @if (error()) { <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div> }
+    <form [formGroup]="form" class="panel-form">
+
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-info-circle"></i> Identificación</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Código <span class="req">*</span></label>
+            <input pInputText formControlName="codigo" placeholder="HOR-001" class="mono-input" />
+            @if (invalid('codigo')) { <small class="err">Requerido</small> }
+          </div>
+          <div class="field">
+            <label>Tipo <span class="req">*</span></label>
+            <p-select formControlName="tipo" [options]="tipoOptions" optionLabel="label" optionValue="value"
+                      styleClass="w-full" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre <span class="req">*</span></label>
+          <input pInputText formControlName="nombre" placeholder="Horario Laboral Normal" />
+          @if (invalid('nombre')) { <small class="err">Requerido, mínimo 2 caracteres</small> }
+        </div>
+        <div class="field">
+          <label>Descripción</label>
+          <input pInputText formControlName="descripcion" placeholder="Descripción opcional" />
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-clock"></i> Horario</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Hora entrada</label>
+            <input pInputText formControlName="horaEntrada" type="time" />
+          </div>
+          <div class="field">
+            <label>Hora salida</label>
+            <input pInputText formControlName="horaSalida" type="time" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Horas diarias <span class="req">*</span></label>
+          <input pInputText type="number" formControlName="horasDiarias" min="1" max="24" />
+          @if (invalid('horasDiarias')) { <small class="err">Requerido</small> }
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-sliders-h"></i> Tolerancias (minutos)</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Tolerancia entrada</label>
+            <input pInputText type="number" formControlName="toleranciaEntradaMin" min="0" />
+          </div>
+          <div class="field">
+            <label>Tolerancia salida</label>
+            <input pInputText type="number" formControlName="toleranciaSalidaMin" min="0" />
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button [label]="esEdicion() ? 'Guardar cambios' : 'Crear horario'"
+              [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'"
+              [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>

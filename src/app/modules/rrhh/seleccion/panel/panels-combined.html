@@ -1,0 +1,183 @@
+<!-- prestamo-panel.component.html -->
+<!-- Path: rrhh/prestamos/panel/prestamo-panel.component.html -->
+@if (visible()) { <div class="panel-backdrop" (click)="cerrar()"></div> }
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-credit-card"></i></div>
+      <div><h2 class="panel-title">Nuevo Préstamo</h2><p class="panel-sub">Solicitud de préstamo para empleado</p></div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+  <div class="panel-body">
+    @if (error()) { <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div> }
+    <form [formGroup]="form" class="panel-form">
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-user"></i> Empleado</div>
+        <div class="field">
+          <label>ID Empleado <span class="req">*</span></label>
+          <input pInputText type="number" formControlName="empleadoId" placeholder="ID del empleado" />
+          @if (invalid('empleadoId')) { <small class="err">Requerido</small> }
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-dollar"></i> Préstamo</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Tipo <span class="req">*</span></label>
+            <p-select formControlName="tipo" [options]="tipoOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
+          </div>
+          <div class="field">
+            <label>Monto solicitado <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="montoSolicitado" min="1" step="0.01" />
+            @if (invalid('montoSolicitado')) { <small class="err">Requerido</small> }
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Número de cuotas <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="numeroCuotas" min="1" />
+          </div>
+          <div class="field">
+            <label>Fecha solicitud <span class="req">*</span></label>
+            <input pInputText type="date" formControlName="fechaSolicitud" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Motivo</label>
+          <input pInputText formControlName="motivo" placeholder="Motivo del préstamo" />
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button label="Registrar préstamo" icon="pi pi-plus" [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>
+
+
+<!-- requisicion-panel.component.html -->
+<!-- Path: rrhh/seleccion/panel/requisicion-panel.component.html -->
+@if (visible()) { <div class="panel-backdrop" (click)="cerrar()"></div> }
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-file-edit"></i></div>
+      <div><h2 class="panel-title">Nueva Requisición</h2><p class="panel-sub">Solicitud de personal</p></div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+  <div class="panel-body">
+    @if (error()) { <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div> }
+    <form [formGroup]="form" class="panel-form">
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-sitemap"></i> Organización</div>
+        <div class="form-row">
+          <div class="field">
+            <label>ID Departamento <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="departamentoId" />
+            @if (invalid('departamentoId')) { <small class="err">Requerido</small> }
+          </div>
+          <div class="field">
+            <label>ID Puesto <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="puestoId" />
+            @if (invalid('puestoId')) { <small class="err">Requerido</small> }
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Motivo <span class="req">*</span></label>
+            <p-select formControlName="motivo" [options]="motivoOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
+          </div>
+          <div class="field">
+            <label>Cantidad plazas <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="cantidadPlazas" min="1" />
+          </div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-calendar"></i> Fechas</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Fecha solicitud <span class="req">*</span></label>
+            <input pInputText type="date" formControlName="fechaSolicitud" />
+          </div>
+          <div class="field">
+            <label>Fecha requerida</label>
+            <input pInputText type="date" formControlName="fechaRequerida" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Descripción del perfil</label>
+          <input pInputText formControlName="descripcionPerfil" placeholder="Perfil buscado..." />
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button label="Crear requisición" icon="pi pi-plus" [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>
+
+
+<!-- candidato-panel.component.html -->
+<!-- Path: rrhh/seleccion/panel/candidato-panel.component.html -->
+@if (visible()) { <div class="panel-backdrop" (click)="cerrar()"></div> }
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-user-plus"></i></div>
+      <div>
+        <h2 class="panel-title">{{ titulo() }}</h2>
+        <p class="panel-sub">{{ esEdicion() ? 'Edita los datos del candidato' : 'Registro de nuevo candidato' }}</p>
+      </div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+  <div class="panel-body">
+    @if (error()) { <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div> }
+    <form [formGroup]="form" class="panel-form">
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-user"></i> Datos personales</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Primer nombre <span class="req">*</span></label>
+            <input pInputText formControlName="primerNombre" placeholder="Juan" />
+            @if (invalid('primerNombre')) { <small class="err">Requerido</small> }
+          </div>
+          <div class="field">
+            <label>Primer apellido <span class="req">*</span></label>
+            <input pInputText formControlName="primerApellido" placeholder="Pérez" />
+            @if (invalid('primerApellido')) { <small class="err">Requerido</small> }
+          </div>
+        </div>
+        <div class="field">
+          <label>Email <span class="req">*</span></label>
+          <input pInputText type="email" formControlName="email" placeholder="candidato@email.com" />
+          @if (invalid('email')) { <small class="err">Email válido requerido</small> }
+        </div>
+        <div class="field">
+          <label>Teléfono</label>
+          <input pInputText formControlName="telefono" placeholder="0999000000" />
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-link"></i> Links</div>
+        <div class="field">
+          <label>CV (URL)</label>
+          <input pInputText formControlName="cvUrl" placeholder="https://..." />
+        </div>
+        <div class="field">
+          <label>LinkedIn</label>
+          <input pInputText formControlName="linkedinUrl" placeholder="https://linkedin.com/in/..." />
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button [label]="esEdicion() ? 'Guardar cambios' : 'Crear candidato'" [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'" [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>

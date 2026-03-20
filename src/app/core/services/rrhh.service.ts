@@ -8,6 +8,19 @@ import {
   EmpleadoListItem, Empleado, CrearEmpleadoRequest, ActualizarEmpleadoRequest,
 } from '../../shared/models/rrhh.models';
 
+import {
+  Horario, CrearHorarioRequest, ActualizarHorarioRequest,
+  ConceptoNomina, CrearConceptoNominaRequest,
+  PeriodoNomina, CrearPeriodoRequest,
+  Prestamo, CrearPrestamoRequest,
+  PlantillaEvaluacion, CrearPlantillaRequest,
+  EvaluacionProceso,
+  Capacitacion, CrearCapacitacionRequest,
+  RequisicionPersonal, CrearRequisicionRequest,
+  Candidato, CrearCandidatoRequest,
+  ProcesoSeleccion,
+} from '../../shared/models/rrhh.models';
+
 interface ApiResponse<T> { success: boolean; data: T; message: string; total?: number; }
 interface PaginatedData<T> { items: T[]; paginaActual: number; totalPaginas: number; totalElementos: number; elementosPorPagina: number; tienePaginaSiguiente: boolean; tienePaginaAnterior: boolean; }
 
@@ -161,4 +174,290 @@ export class RrhhService {
       tap(r => { if (r?.success) this._empleados.update(l => l.map(e => e.id === id ? { ...e, activo: false } : e)); })
     );
   }
+  
+  
+  
+  // ── Horarios ──────────────────────────────────────────────────────
+  private _horarios      = signal<Horario[]>([]);
+  private _cargandoHor   = signal(false);
+  readonly horarios      = this._horarios.asReadonly();
+  readonly cargandoHor   = this._cargandoHor.asReadonly();
+
+  listarHorarios(): Observable<ApiResponse<Horario[]>> {
+    this._cargandoHor.set(true);
+    return this.http.get<ApiResponse<Horario[]>>(`${this.base}/horarios`).pipe(
+      tap({ next: r => { this._horarios.set(r?.data ?? []); this._cargandoHor.set(false); },
+            error: () => this._cargandoHor.set(false) })
+    );
+  }
+
+  obtenerHorario(id: number): Observable<ApiResponse<Horario>> {
+    return this.http.get<ApiResponse<Horario>>(`${this.base}/horarios/${id}`);
+  }
+
+  crearHorario(req: CrearHorarioRequest): Observable<ApiResponse<Horario>> {
+    return this.http.post<ApiResponse<Horario>>(`${this.base}/horarios`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._horarios.update(l => [...l, r.data]); })
+    );
+  }
+
+  actualizarHorario(id: number, req: ActualizarHorarioRequest): Observable<ApiResponse<Horario>> {
+    return this.http.put<ApiResponse<Horario>>(`${this.base}/horarios/${id}`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._horarios.update(l => l.map(h => h.id === id ? { ...h, ...r.data } : h)); })
+    );
+  }
+
+  eliminarHorario(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.base}/horarios/${id}`).pipe(
+      tap(r => { if (r?.success) this._horarios.update(l => l.filter(h => h.id !== id)); })
+    );
+  }
+
+  // ── ConceptoNomina ────────────────────────────────────────────────
+  private _conceptos      = signal<ConceptoNomina[]>([]);
+  private _cargandoConc   = signal(false);
+  readonly conceptos      = this._conceptos.asReadonly();
+  readonly cargandoConc   = this._cargandoConc.asReadonly();
+
+  listarConceptos(): Observable<ApiResponse<ConceptoNomina[]>> {
+    this._cargandoConc.set(true);
+    return this.http.get<ApiResponse<ConceptoNomina[]>>(`${this.base}/nomina/conceptos`).pipe(
+      tap({ next: r => { this._conceptos.set(r?.data ?? []); this._cargandoConc.set(false); },
+            error: () => this._cargandoConc.set(false) })
+    );
+  }
+
+  crearConcepto(req: CrearConceptoNominaRequest): Observable<ApiResponse<ConceptoNomina>> {
+    return this.http.post<ApiResponse<ConceptoNomina>>(`${this.base}/nomina/conceptos`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._conceptos.update(l => [...l, r.data]); })
+    );
+  }
+
+  actualizarConcepto(id: number, req: CrearConceptoNominaRequest): Observable<ApiResponse<ConceptoNomina>> {
+    return this.http.put<ApiResponse<ConceptoNomina>>(`${this.base}/nomina/conceptos/${id}`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._conceptos.update(l => l.map(c => c.id === id ? { ...c, ...r.data } : c)); })
+    );
+  }
+
+  eliminarConcepto(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.base}/nomina/conceptos/${id}`).pipe(
+      tap(r => { if (r?.success) this._conceptos.update(l => l.filter(c => c.id !== id)); })
+    );
+  }
+
+  // ── Periodos Nómina ───────────────────────────────────────────────
+  private _periodos      = signal<PeriodoNomina[]>([]);
+  private _cargandoPer   = signal(false);
+  readonly periodos      = this._periodos.asReadonly();
+  readonly cargandoPer   = this._cargandoPer.asReadonly();
+
+  listarPeriodos(anno?: number): Observable<ApiResponse<PeriodoNomina[]>> {
+    this._cargandoPer.set(true);
+    const qs = anno ? `?anno=${anno}` : '';
+    return this.http.get<ApiResponse<PeriodoNomina[]>>(`${this.base}/nomina/periodos${qs}`).pipe(
+      tap({ next: r => { this._periodos.set(r?.data ?? []); this._cargandoPer.set(false); },
+            error: () => this._cargandoPer.set(false) })
+    );
+  }
+
+  crearPeriodo(req: CrearPeriodoRequest): Observable<ApiResponse<PeriodoNomina>> {
+    return this.http.post<ApiResponse<PeriodoNomina>>(`${this.base}/nomina/periodos`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._periodos.update(l => [...l, r.data]); })
+    );
+  }
+
+  // ── Préstamos ─────────────────────────────────────────────────────
+  private _prestamos      = signal<Prestamo[]>([]);
+  private _cargandoPrest  = signal(false);
+  readonly prestamos      = this._prestamos.asReadonly();
+  readonly cargandoPrest  = this._cargandoPrest.asReadonly();
+
+  listarPrestamos(): Observable<ApiResponse<any>> {
+    this._cargandoPrest.set(true);
+    return this.http.get<ApiResponse<any>>(`${this.base}/prestamos`).pipe(
+      tap({ next: r => {
+        const items = r?.data?.items ?? r?.data ?? [];
+        this._prestamos.set(items);
+        this._cargandoPrest.set(false);
+      }, error: () => this._cargandoPrest.set(false) })
+    );
+  }
+
+  obtenerPrestamo(id: number): Observable<ApiResponse<Prestamo>> {
+    return this.http.get<ApiResponse<Prestamo>>(`${this.base}/prestamos/${id}`);
+  }
+
+  crearPrestamo(req: CrearPrestamoRequest): Observable<ApiResponse<Prestamo>> {
+    return this.http.post<ApiResponse<Prestamo>>(`${this.base}/prestamos`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._prestamos.update(l => [...l, r.data]); })
+    );
+  }
+
+  aprobarPrestamo(id: number, observacion?: string): Observable<ApiResponse<void>> {
+    return this.http.patch<ApiResponse<void>>(`${this.base}/prestamos/${id}/aprobar`, { aprobado: true, observacion }).pipe(
+      tap(r => { if (r?.success) this._prestamos.update(l => l.map(p => p.id === id ? { ...p, estado: 2 } : p)); })
+    );
+  }
+
+  rechazarPrestamo(id: number, motivo?: string): Observable<ApiResponse<void>> {
+    return this.http.patch<ApiResponse<void>>(`${this.base}/prestamos/${id}/rechazar`, { motivo }).pipe(
+      tap(r => { if (r?.success) this._prestamos.update(l => l.map(p => p.id === id ? { ...p, estado: 3 } : p)); })
+    );
+  }
+
+  // ── Evaluaciones — Plantillas ─────────────────────────────────────
+  private _plantillas      = signal<PlantillaEvaluacion[]>([]);
+  private _cargandoPlant   = signal(false);
+  readonly plantillas      = this._plantillas.asReadonly();
+  readonly cargandoPlant   = this._cargandoPlant.asReadonly();
+
+  listarPlantillas(): Observable<ApiResponse<PlantillaEvaluacion[]>> {
+    this._cargandoPlant.set(true);
+    return this.http.get<ApiResponse<PlantillaEvaluacion[]>>(`${this.base}/evaluaciones/plantillas`).pipe(
+      tap({ next: r => { this._plantillas.set(r?.data ?? []); this._cargandoPlant.set(false); },
+            error: () => this._cargandoPlant.set(false) })
+    );
+  }
+
+  crearPlantilla(req: CrearPlantillaRequest): Observable<ApiResponse<PlantillaEvaluacion>> {
+    return this.http.post<ApiResponse<PlantillaEvaluacion>>(`${this.base}/evaluaciones/plantillas`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._plantillas.update(l => [...l, r.data]); })
+    );
+  }
+
+  eliminarPlantilla(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.base}/evaluaciones/plantillas/${id}`).pipe(
+      tap(r => { if (r?.success) this._plantillas.update(l => l.filter(p => p.id !== id)); })
+    );
+  }
+
+  // ── Evaluaciones — Procesos ───────────────────────────────────────
+  private _procesos      = signal<EvaluacionProceso[]>([]);
+  private _cargandoProc  = signal(false);
+  readonly procesos      = this._procesos.asReadonly();
+  readonly cargandoProc  = this._cargandoProc.asReadonly();
+
+  listarProcesos(): Observable<ApiResponse<EvaluacionProceso[]>> {
+    this._cargandoProc.set(true);
+    return this.http.get<ApiResponse<EvaluacionProceso[]>>(`${this.base}/evaluaciones/procesos`).pipe(
+      tap({ next: r => { this._procesos.set(r?.data ?? []); this._cargandoProc.set(false); },
+            error: () => this._cargandoProc.set(false) })
+    );
+  }
+
+  // ── Capacitaciones ────────────────────────────────────────────────
+  private _capacitaciones   = signal<Capacitacion[]>([]);
+  private _cargandoCap      = signal(false);
+  readonly capacitaciones   = this._capacitaciones.asReadonly();
+  readonly cargandoCap      = this._cargandoCap.asReadonly();
+
+  listarCapacitaciones(): Observable<ApiResponse<any>> {
+    this._cargandoCap.set(true);
+    return this.http.get<ApiResponse<any>>(`${this.base}/capacitaciones`).pipe(
+      tap({ next: r => {
+        const items = r?.data?.items ?? r?.data ?? [];
+        this._capacitaciones.set(items);
+        this._cargandoCap.set(false);
+      }, error: () => this._cargandoCap.set(false) })
+    );
+  }
+
+  crearCapacitacion(req: CrearCapacitacionRequest): Observable<ApiResponse<Capacitacion>> {
+    return this.http.post<ApiResponse<Capacitacion>>(`${this.base}/capacitaciones`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._capacitaciones.update(l => [...l, r.data]); })
+    );
+  }
+
+  actualizarCapacitacion(id: number, req: CrearCapacitacionRequest): Observable<ApiResponse<Capacitacion>> {
+    return this.http.put<ApiResponse<Capacitacion>>(`${this.base}/capacitaciones/${id}`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._capacitaciones.update(l => l.map(c => c.id === id ? { ...c, ...r.data } : c)); })
+    );
+  }
+
+  eliminarCapacitacion(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.base}/capacitaciones/${id}`).pipe(
+      tap(r => { if (r?.success) this._capacitaciones.update(l => l.filter(c => c.id !== id)); })
+    );
+  }
+
+  cambiarEstadoCapacitacion(id: number, estado: number): Observable<ApiResponse<void>> {
+    return this.http.patch<ApiResponse<void>>(`${this.base}/capacitaciones/${id}/estado`, { estado }).pipe(
+      tap(r => { if (r?.success) this._capacitaciones.update(l => l.map(c => c.id === id ? { ...c, estado } : c)); })
+    );
+  }
+
+  // ── Requisiciones ─────────────────────────────────────────────────
+  private _requisiciones   = signal<RequisicionPersonal[]>([]);
+  private _cargandoReq     = signal(false);
+  readonly requisiciones   = this._requisiciones.asReadonly();
+  readonly cargandoReq     = this._cargandoReq.asReadonly();
+
+  listarRequisiciones(): Observable<ApiResponse<RequisicionPersonal[]>> {
+    this._cargandoReq.set(true);
+    return this.http.get<ApiResponse<RequisicionPersonal[]>>(`${this.base}/requisiciones`).pipe(
+      tap({ next: r => { this._requisiciones.set(r?.data ?? []); this._cargandoReq.set(false); },
+            error: () => this._cargandoReq.set(false) })
+    );
+  }
+
+  crearRequisicion(req: CrearRequisicionRequest): Observable<ApiResponse<RequisicionPersonal>> {
+    return this.http.post<ApiResponse<RequisicionPersonal>>(`${this.base}/requisiciones`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._requisiciones.update(l => [...l, r.data]); })
+    );
+  }
+
+  eliminarRequisicion(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.base}/requisiciones/${id}`).pipe(
+      tap(r => { if (r?.success) this._requisiciones.update(l => l.filter(r => r.id !== id)); })
+    );
+  }
+
+  // ── Candidatos ────────────────────────────────────────────────────
+  private _candidatos     = signal<Candidato[]>([]);
+  private _cargandoCand   = signal(false);
+  readonly candidatos     = this._candidatos.asReadonly();
+  readonly cargandoCand   = this._cargandoCand.asReadonly();
+
+  listarCandidatos(): Observable<ApiResponse<Candidato[]>> {
+    this._cargandoCand.set(true);
+    return this.http.get<ApiResponse<Candidato[]>>(`${this.base}/candidatos`).pipe(
+      tap({ next: r => { this._candidatos.set(r?.data ?? []); this._cargandoCand.set(false); },
+            error: () => this._cargandoCand.set(false) })
+    );
+  }
+
+  crearCandidato(req: CrearCandidatoRequest): Observable<ApiResponse<Candidato>> {
+    return this.http.post<ApiResponse<Candidato>>(`${this.base}/candidatos`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._candidatos.update(l => [...l, r.data]); })
+    );
+  }
+
+  actualizarCandidato(id: number, req: Partial<CrearCandidatoRequest>): Observable<ApiResponse<Candidato>> {
+    return this.http.put<ApiResponse<Candidato>>(`${this.base}/candidatos/${id}`, req).pipe(
+      tap(r => { if (r?.success && r.data) this._candidatos.update(l => l.map(c => c.id === id ? { ...c, ...r.data } : c)); })
+    );
+  }
+
+  eliminarCandidato(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.base}/candidatos/${id}`).pipe(
+      tap(r => { if (r?.success) this._candidatos.update(l => l.filter(c => c.id !== id)); })
+    );
+  }
+
+  // ── Procesos de Selección ─────────────────────────────────────────
+  private _procesosSeleccion   = signal<ProcesoSeleccion[]>([]);
+  private _cargandoProcesoSel  = signal(false);
+  readonly procesosSeleccion   = this._procesosSeleccion.asReadonly();
+  readonly cargandoProcesoSel  = this._cargandoProcesoSel.asReadonly();
+
+  listarProcesosSeleccion(): Observable<ApiResponse<ProcesoSeleccion[]>> {
+    this._cargandoProcesoSel.set(true);
+    return this.http.get<ApiResponse<ProcesoSeleccion[]>>(`${this.base}/procesos-seleccion`).pipe(
+      tap({ next: r => { this._procesosSeleccion.set(r?.data ?? []); this._cargandoProcesoSel.set(false); },
+            error: () => this._cargandoProcesoSel.set(false) })
+    );
+  }
+  
+  
 }
+

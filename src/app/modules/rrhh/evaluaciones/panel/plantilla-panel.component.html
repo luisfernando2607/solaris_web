@@ -1,0 +1,59 @@
+<!-- plantilla-panel.component.html -->
+<!-- Path: rrhh/evaluaciones/panel/plantilla-panel.component.html -->
+@if (visible()) { <div class="panel-backdrop" (click)="cerrar()"></div> }
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-file"></i></div>
+      <div><h2 class="panel-title">Nueva Plantilla</h2><p class="panel-sub">Crea una plantilla de evaluación</p></div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+  <div class="panel-body">
+    @if (error()) { <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div> }
+    <form [formGroup]="form" class="panel-form">
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-info-circle"></i> Datos</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Código <span class="req">*</span></label>
+            <input pInputText formControlName="codigo" placeholder="EVAL-001" class="mono-input" />
+          </div>
+          <div class="field">
+            <label>Tipo <span class="req">*</span></label>
+            <p-select formControlName="tipo" [options]="tipoOptions" optionLabel="label" optionValue="value" styleClass="w-full" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Nombre <span class="req">*</span></label>
+          <input pInputText formControlName="nombre" placeholder="Evaluación de desempeño anual" />
+        </div>
+        <div class="field">
+          <label>Descripción</label>
+          <input pInputText formControlName="descripcion" />
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-sliders-h"></i> Escala</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Mínimo <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="escalaMin" min="0" />
+          </div>
+          <div class="field">
+            <label>Máximo <span class="req">*</span></label>
+            <input pInputText type="number" formControlName="escalaMax" min="1" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Instrucciones</label>
+          <input pInputText formControlName="instrucciones" placeholder="Instrucciones para evaluadores" />
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button label="Crear plantilla" icon="pi pi-plus" [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>

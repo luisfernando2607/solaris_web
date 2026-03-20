@@ -1,0 +1,54 @@
+@if (visible()) { <div class="panel-backdrop" (click)="cerrar()"></div> }
+<div class="side-panel" [class.open]="visible()">
+  <div class="panel-header">
+    <div class="panel-title-wrap">
+      <div class="panel-icon"><i class="pi pi-user-plus"></i></div>
+      <div><h2 class="panel-title">{{ titulo() }}</h2><p class="panel-sub">Datos del candidato</p></div>
+    </div>
+    <button class="close-btn" (click)="cerrar()"><i class="pi pi-times"></i></button>
+  </div>
+  <div class="panel-body">
+    @if (error()) { <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ error() }}</span></div> }
+    <form [formGroup]="form" class="panel-form">
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-user"></i> Datos personales</div>
+        <div class="form-row">
+          <div class="field">
+            <label>Primer nombre <span class="req">*</span></label>
+            <input pInputText formControlName="primerNombre" placeholder="Juan" />
+            @if (invalid('primerNombre')) { <small class="err">Requerido</small> }
+          </div>
+          <div class="field">
+            <label>Primer apellido <span class="req">*</span></label>
+            <input pInputText formControlName="primerApellido" placeholder="Pérez" />
+            @if (invalid('primerApellido')) { <small class="err">Requerido</small> }
+          </div>
+        </div>
+        <div class="field">
+          <label>Email <span class="req">*</span></label>
+          <input pInputText type="email" formControlName="email" placeholder="candidato@email.com" />
+          @if (invalid('email')) { <small class="err">Email válido requerido</small> }
+        </div>
+        <div class="field">
+          <label>Teléfono</label>
+          <input pInputText formControlName="telefono" placeholder="0999000000" />
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-label"><i class="pi pi-link"></i> Links</div>
+        <div class="field">
+          <label>CV (URL)</label>
+          <input pInputText formControlName="cvUrl" placeholder="https://..." />
+        </div>
+        <div class="field">
+          <label>LinkedIn</label>
+          <input pInputText formControlName="linkedinUrl" placeholder="https://linkedin.com/in/..." />
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+    <p-button label="Cancelar" severity="secondary" [outlined]="true" [disabled]="guardando()" (onClick)="cerrar()" styleClass="flex-1" />
+    <p-button [label]="esEdicion() ? 'Guardar cambios' : 'Crear candidato'" [icon]="esEdicion() ? 'pi pi-save' : 'pi pi-plus'" [loading]="guardando()" (onClick)="guardar()" styleClass="flex-1" />
+  </div>
+</div>
