@@ -190,8 +190,8 @@ export class RrhhService {
     return this.http.post<ApiResponse<CuentaSistema>>(`${this.base}/empleados/${id}/crear-cuenta`, data);
   }
 
-  vincularUsuarioEmpleado(id: number, emailOId: string): Observable<ApiResponse<CuentaSistema>> {
-    return this.http.post<ApiResponse<CuentaSistema>>(`${this.base}/empleados/${id}/vincular-usuario`, { emailOId });
+  vincularUsuarioEmpleado(id: number, emailONombreUsuario: string): Observable<ApiResponse<CuentaSistema>> {
+    return this.http.post<ApiResponse<CuentaSistema>>(`${this.base}/empleados/${id}/vincular-usuario`, { emailONombreUsuario });
   }
 
   desvincularUsuarioEmpleado(id: number): Observable<ApiResponse<void>> {

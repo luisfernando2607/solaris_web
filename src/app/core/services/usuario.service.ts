@@ -94,11 +94,12 @@ export class UsuarioService {
     return this.http.post<ApiResponse<any>>(`${this.url}/${id}/desbloquear`, {});
   }
 
-  resetearPassword(id: number, nuevaPassword: string): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(
-      `${this.url}/${id}/resetear-password`,
-      { nuevaPassword }
-    );
+  resetearPassword(id: number): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.url}/${id}/resetear-password`, {});
+  }
+
+  cambiarPassword(id: number, nuevaPassword: string): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.url}/${id}/cambiar-password`, { nuevaPassword });
   }
 
   asignarRoles(id: number, rolIds: number[]): Observable<ApiResponse<any>> {

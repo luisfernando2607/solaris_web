@@ -8,7 +8,8 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
 import { DividerModule } from 'primeng/divider';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { UsuarioService } from '../../../core/services/usuario.service';
 import { RolService } from '../../../core/services/rol.service';
@@ -20,9 +21,9 @@ import { Usuario } from '../../../shared/models/usuario.models';
   imports: [
     CommonModule, ReactiveFormsModule,
     InputTextModule, PasswordModule, ButtonModule,
-    MultiSelectModule, MessageModule, ToastModule, DividerModule,
+    MultiSelectModule, MessageModule, ToastModule, DividerModule, ConfirmDialogModule,
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './usuario-panel.component.html',
   styleUrls: ['./usuario-panel.component.scss']
 })
@@ -32,13 +33,24 @@ export class UsuarioPanelComponent implements OnInit {
   onCerrar   = output<void>();
   onGuardado = output<void>();
 
-  private readonly fb             = inject(FormBuilder);
-  private readonly usuarioService = inject(UsuarioService);
-  private readonly rolService     = inject(RolService);
-  private readonly toast          = inject(MessageService);
+  private readonly fb              = inject(FormBuilder);
+  private readonly usuarioService  = inject(UsuarioService);
+  private readonly rolService      = inject(RolService);
+  private readonly toast           = inject(MessageService);
+  private readonly confirmService  = inject(ConfirmationService);
 
-  readonly cargando  = signal(false);
-  readonly error     = signal('');
+  readonly cargando       = signal(false);
+  readonly error          = signal('');
+
+  // ── Contraseña ────────────────────────────────────────────────────
+  readonly modoPassword      = signal<'none' | 'cambiar'>('none');
+  readonly passwordCargando  = signal(false);
+  readonly passwordError     = signal('');
+
+  readonly passwordForm = this.fb.group({
+    nuevaPassword:     ['', [Validators.required, Validators.minLength(8)]],
+    confirmarPassword: ['', Validators.required],
+  }, { validators: this._matchPasswords });
   readonly roles     = this.rolService.roles;
 
   readonly esEdicion = () => !!this.usuario();
@@ -70,9 +82,18 @@ export class UsuarioPanelComponent implements OnInit {
       this.form.get('nombreUsuario')?.setValue(primeraNombre + primerApellido, { emitEvent: false });
   }
 
+  private _matchPasswords(group: any) {
+    const p = group.get('nuevaPassword')?.value;
+    const c = group.get('confirmarPassword')?.value;
+    return p === c ? null : { noCoinciden: true };
+  }
+
   constructor() {
     effect(() => {
       const u = this.usuario();
+      this.modoPassword.set('none');
+      this.passwordError.set('');
+      this.passwordForm.reset();
       if (u) {
         this.form.patchValue({
           nombres:       u.nombres,
@@ -152,4 +173,57 @@ export class UsuarioPanelComponent implements OnInit {
   }
 
   cerrar(): void { this.onCerrar.emit(); }
+
+  // ── Contraseña ────────────────────────────────────────────────────
+  invalidPassword(campo: string) {
+    const c = this.passwordForm.get(campo);
+    return c?.invalid && c?.touched;
+  }
+
+  resetearPassword(): void {
+    this.confirmService.confirm({
+      message: `¿Seguro que deseas restablecer la contraseña de <strong>${this.usuario()?.nombreCompleto}</strong>? Se generará una contraseña temporal.`,
+      header:  'Restablecer contraseña',
+      icon:    'pi pi-key',
+      acceptLabel: 'Sí, restablecer',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-warning',
+      accept: () => {
+        this.passwordCargando.set(true);
+        this.passwordError.set('');
+        this.usuarioService.resetearPassword(this.usuario()!.id).subscribe({
+          next: r => {
+            if (r?.success) {
+              this.toast.add({ severity: 'success', summary: '¡Listo!',
+                detail: 'Contraseña restablecida. Se notificará al usuario por email.', life: 4000 });
+            } else {
+              this.passwordError.set(r?.message ?? 'Error al restablecer contraseña');
+            }
+            this.passwordCargando.set(false);
+          },
+          error: e => { this.passwordError.set(e?.error?.message ?? 'Error al restablecer contraseña'); this.passwordCargando.set(false); },
+        });
+      }
+    });
+  }
+
+  cambiarPassword(): void {
+    if (this.passwordForm.invalid) { this.passwordForm.markAllAsTouched(); return; }
+    this.passwordCargando.set(true);
+    this.passwordError.set('');
+    const nuevaPassword = this.passwordForm.get('nuevaPassword')!.value!;
+    this.usuarioService.cambiarPassword(this.usuario()!.id, nuevaPassword).subscribe({
+      next: r => {
+        if (r?.success) {
+          this.toast.add({ severity: 'success', summary: '¡Listo!', detail: 'Contraseña actualizada correctamente.', life: 3000 });
+          this.modoPassword.set('none');
+          this.passwordForm.reset();
+        } else {
+          this.passwordError.set(r?.message ?? 'Error al cambiar contraseña');
+        }
+        this.passwordCargando.set(false);
+      },
+      error: e => { this.passwordError.set(e?.error?.message ?? 'Error al cambiar contraseña'); this.passwordCargando.set(false); },
+    });
+  }
 }

@@ -231,6 +231,58 @@
   font-family: 'JetBrains Mono', monospace !important;
 }
 
+/* ── Contraseña ── */
+.cuenta-acciones {
+  display: flex;
+  gap: .6rem;
+  flex-wrap: wrap;
+}
+
+.cuenta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem .9rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: .78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+
+  &.primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    &:hover { opacity: .9; }
+    &:disabled { opacity: .5; cursor: not-allowed; }
+  }
+
+  &.secondary {
+    background: none;
+    color: var(--text);
+    &:hover { background: var(--surface2); }
+  }
+}
+
+.cuenta-subform {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.cuenta-form-btns {
+  display: flex;
+  gap: .6rem;
+  justify-content: flex-end;
+  margin-top: .25rem;
+}
+
+::ng-deep .cuenta-subform .p-password {
+  width: 100% !important;
+  .p-inputtext { width: 100% !important; }
+}
+
 /* ── Footer ── */
 .panel-footer {
   display: flex;

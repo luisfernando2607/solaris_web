@@ -1,4 +1,5 @@
 <p-toast position="top-right" />
+<p-confirmDialog />
 
 <!-- Backdrop -->
 @if (visible()) {
@@ -116,6 +117,57 @@
           </div>
         }
       </div>
+
+      <!-- Sección: Contraseña (solo en edición) -->
+      @if (esEdicion()) {
+        <div class="form-section">
+          <div class="section-label">
+            <i class="pi pi-lock"></i>
+            Contraseña
+          </div>
+
+          @if (passwordError()) {
+            <div class="panel-error"><i class="pi pi-exclamation-circle"></i><span>{{ passwordError() }}</span></div>
+          }
+
+          @if (modoPassword() === 'none') {
+            <div class="cuenta-acciones">
+              <button type="button" class="cuenta-btn secondary" [disabled]="passwordCargando()" (click)="resetearPassword()">
+                <i class="pi pi-refresh"></i> Restablecer contraseña
+              </button>
+              <button type="button" class="cuenta-btn primary" (click)="modoPassword.set('cambiar')">
+                <i class="pi pi-pencil"></i> Cambiar contraseña
+              </button>
+            </div>
+            <small class="field-hint">Restablecer genera una contraseña temporal. Cambiar te permite definir una nueva contraseña.</small>
+          } @else {
+            <form [formGroup]="passwordForm" class="cuenta-subform">
+              <div class="field">
+                <label>Nueva contraseña <span class="req">*</span></label>
+                <p-password formControlName="nuevaPassword" [feedback]="true" [toggleMask]="true"
+                  styleClass="w-full" inputStyleClass="w-full" placeholder="Mínimo 8 caracteres" />
+                @if (invalidPassword('nuevaPassword')) { <small class="err">Mínimo 8 caracteres</small> }
+              </div>
+              <div class="field">
+                <label>Confirmar contraseña <span class="req">*</span></label>
+                <p-password formControlName="confirmarPassword" [feedback]="false" [toggleMask]="true"
+                  styleClass="w-full" inputStyleClass="w-full" placeholder="Repite la contraseña" />
+                @if (passwordForm.errors?.['noCoinciden'] && passwordForm.get('confirmarPassword')?.touched) {
+                  <small class="err">Las contraseñas no coinciden</small>
+                }
+              </div>
+              <div class="cuenta-form-btns">
+                <button type="button" class="cuenta-btn secondary" (click)="modoPassword.set('none'); passwordForm.reset()">
+                  <i class="pi pi-times"></i> Cancelar
+                </button>
+                <button type="button" class="cuenta-btn primary" [disabled]="passwordCargando()" (click)="cambiarPassword()">
+                  <i class="pi pi-check"></i> Guardar contraseña
+                </button>
+              </div>
+            </form>
+          }
+        </div>
+      }
 
       <!-- Sección: Roles (solo creación) -->
       @if (!esEdicion()) {

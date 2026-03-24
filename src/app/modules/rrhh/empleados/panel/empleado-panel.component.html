@@ -303,10 +303,10 @@
             <div class="cuenta-form-wrap">
               <form [formGroup]="vincularForm" class="cuenta-subform">
                 <div class="field">
-                  <label>Email o ID del usuario <span class="req">*</span></label>
-                  <input pInputText formControlName="emailOId" placeholder="usuario@empresa.com" />
-                  @if (invalidVincular('emailOId')) { <small class="err">Campo requerido</small> }
-                  <small class="field-hint">Ingresa el email de la cuenta existente</small>
+                  <label>Correo o nombre de usuario <span class="req">*</span></label>
+                  <input pInputText formControlName="emailONombreUsuario" placeholder="usuario@empresa.com o jperez" />
+                  @if (invalidVincular('emailONombreUsuario')) { <small class="err">Campo requerido</small> }
+                  <small class="field-hint">Ingresa el correo o el nombre de usuario (&#64;usuario) de la cuenta existente</small>
                 </div>
                 <div class="cuenta-form-btns">
                   <button type="button" class="cuenta-btn secondary" (click)="modoAccion.set('none')">

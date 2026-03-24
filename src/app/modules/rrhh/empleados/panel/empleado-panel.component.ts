@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal, effect, OnInit, computed } from '@angular/core';
+import { Component, inject, input, output, signal, OnInit, OnChanges, SimpleChanges, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -38,7 +38,7 @@ import {
   templateUrl: './empleado-panel.component.html',
   styleUrls: ['./empleado-panel.component.scss']
 })
-export class EmpleadoPanelComponent implements OnInit {
+export class EmpleadoPanelComponent implements OnInit, OnChanges {
   visible    = input<boolean>(false);
   empleado   = input<Empleado | null>(null);
   onCerrar   = output<void>();
@@ -66,7 +66,7 @@ export class EmpleadoPanelComponent implements OnInit {
     password:      ['', [Validators.required, Validators.minLength(6)]],
   });
   readonly vincularForm = this.fb.group({
-    emailOId: ['', Validators.required],
+    emailONombreUsuario: ['', Validators.required],
   });
 
   // Opciones de selects estáticas
@@ -134,66 +134,69 @@ export class EmpleadoPanelComponent implements OnInit {
     numeroCuenta:        [''],
   });
 
-  constructor() {
-    effect(() => {
-      const e = this.empleado();
-      // Reset cuenta state on employee change
-      this.cuenta.set(null);
-      this.cuentaError.set('');
-      this.modoAccion.set('none');
-      this.cuentaForm.reset();
-      this.vincularForm.reset();
+  constructor() {}
 
-      if (e) {
-        // Cargar cuenta vinculada si existe
-        if (e.tieneCuenta) {
-          this.cuentaCargando.set(true);
-          this.rrhhService.obtenerCuentaEmpleado(e.id).subscribe({
-            next: r => { if (r?.success) this.cuenta.set(r.data ?? null); this.cuentaCargando.set(false); },
-            error: () => this.cuentaCargando.set(false),
-          });
-        }
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!('empleado' in changes)) return;
 
-        this.form.patchValue({
-          tipoIdentificacion:   e.tipoIdentificacion,
-          numeroIdentificacion: e.numeroIdentificacion,
-          nombres:              e.nombres,
-          apellidos:            e.apellidos,
-          fechaNacimiento:      e.fechaNacimiento ?? '',
-          genero:               e.genero ?? null,
-          estadoCivil:          e.estadoCivil ?? null,
-          emailPersonal:        e.emailPersonal ?? '',
-          emailCorporativo:     e.emailCorporativo ?? '',
-          telefonoCelular:      e.telefonoCelular ?? '',
-          telefonoFijo:         e.telefonoFijo ?? '',
-          direccion:            e.direccion ?? '',
-          departamentoId:       e.departamentoId ?? null,
-          puestoId:             e.puestoId ?? null,
-          jefeDirectoId:        e.jefeDirectoId ?? null,
-          fechaIngreso:         e.fechaIngreso,
-          tipoContrato:         e.tipoContrato,
-          modalidadTrabajo:     e.modalidadTrabajo,
-          jornadaLaboral:       e.jornadaLaboral,
-          horasSemanales:       e.horasSemanales,
-          salarioBase:          e.salarioBase,
-          estado:               e.estado,
-          numeroSeguroSocial:   e.numeroSeguroSocial ?? '',
-          bancoId:              e.bancoId ?? null,
-          tipoCuenta:           e.tipoCuenta ?? null,
-          numeroCuenta:         e.numeroCuenta ?? '',
+    const e = this.empleado();
+
+    // Resetear estado de cuenta al cambiar empleado
+    this.cuenta.set(null);
+    this.cuentaError.set('');
+    this.modoAccion.set('none');
+    this.cuentaForm.reset();
+    this.vincularForm.reset();
+
+    if (e) {
+      // Cargar cuenta vinculada si existe
+      if (e.tieneCuenta) {
+        this.cuentaCargando.set(true);
+        this.rrhhService.obtenerCuentaEmpleado(e.id).subscribe({
+          next: r => { if (r?.success) this.cuenta.set(r.data ?? null); this.cuentaCargando.set(false); },
+          error: () => this.cuentaCargando.set(false),
         });
-        this.form.get('numeroIdentificacion')?.disable();
-      } else {
-        this.form.reset({
-          tipoIdentificacion: 'CEDULA',
-          tipoContrato: 1, modalidadTrabajo: 1,
-          jornadaLaboral: JornadaLaboral.Completa,
-          horasSemanales: 40, estado: 1
-        });
-        this.form.get('numeroIdentificacion')?.enable();
       }
-      this.error.set('');
-    });
+
+      this.form.patchValue({
+        tipoIdentificacion:   e.tipoIdentificacion,
+        numeroIdentificacion: e.numeroIdentificacion,
+        nombres:              e.nombres,
+        apellidos:            e.apellidos,
+        fechaNacimiento:      e.fechaNacimiento ?? '',
+        genero:               e.genero ?? null,
+        estadoCivil:          e.estadoCivil ?? null,
+        emailPersonal:        e.emailPersonal ?? '',
+        emailCorporativo:     e.emailCorporativo ?? '',
+        telefonoCelular:      e.telefonoCelular ?? '',
+        telefonoFijo:         e.telefonoFijo ?? '',
+        direccion:            e.direccion ?? '',
+        departamentoId:       e.departamentoId ?? null,
+        puestoId:             e.puestoId ?? null,
+        jefeDirectoId:        e.jefeDirectoId ?? null,
+        fechaIngreso:         e.fechaIngreso,
+        tipoContrato:         e.tipoContrato,
+        modalidadTrabajo:     e.modalidadTrabajo,
+        jornadaLaboral:       e.jornadaLaboral,
+        horasSemanales:       e.horasSemanales,
+        salarioBase:          e.salarioBase,
+        estado:               e.estado,
+        numeroSeguroSocial:   e.numeroSeguroSocial ?? '',
+        bancoId:              e.bancoId ?? null,
+        tipoCuenta:           e.tipoCuenta ?? null,
+        numeroCuenta:         e.numeroCuenta ?? '',
+      });
+      this.form.get('numeroIdentificacion')?.disable();
+    } else {
+      this.form.reset({
+        tipoIdentificacion: 'CEDULA',
+        tipoContrato: 1, modalidadTrabajo: 1,
+        jornadaLaboral: JornadaLaboral.Completa,
+        horasSemanales: 40, estado: 1
+      });
+      this.form.get('numeroIdentificacion')?.enable();
+    }
+    this.error.set('');
   }
 
   ngOnInit(): void {
@@ -316,8 +319,8 @@ export class EmpleadoPanelComponent implements OnInit {
     if (this.vincularForm.invalid) { this.vincularForm.markAllAsTouched(); return; }
     this.cuentaCargando.set(true);
     this.cuentaError.set('');
-    const emailOId = this.vincularForm.get('emailOId')!.value!;
-    this.rrhhService.vincularUsuarioEmpleado(this.empleado()!.id, emailOId).subscribe({
+    const emailONombreUsuario = this.vincularForm.get('emailONombreUsuario')!.value!;
+    this.rrhhService.vincularUsuarioEmpleado(this.empleado()!.id, emailONombreUsuario).subscribe({
       next: r => {
         if (r?.success) { this.cuenta.set(r.data ?? null); this.modoAccion.set('none'); this.vincularForm.reset(); }
         else this.cuentaError.set(r?.message ?? 'Error al vincular usuario');
