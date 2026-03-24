@@ -152,6 +152,22 @@
                       <i class="pi pi-lock"></i>
                     </button>
                   }
+                  @if (u.estado === 2) {
+                    <button
+                      class="action-btn activate"
+                      (click)="desbloquear(u)"
+                      pTooltip="Desbloquear" tooltipPosition="top"
+                    >
+                      <i class="pi pi-lock-open"></i>
+                    </button>
+                  }
+                  <button
+                    class="action-btn danger"
+                    (click)="eliminar(u)"
+                    pTooltip="Eliminar" tooltipPosition="top"
+                  >
+                    <i class="pi pi-trash"></i>
+                  </button>
                 </div>
               </td>
             </tr>

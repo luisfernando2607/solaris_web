@@ -225,6 +225,7 @@
   &.deactivate:hover { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,.08); }
   &.activate:hover   { border-color: #10b981; color: #10b981; background: rgba(16,185,129,.08); }
   &.lock:hover       { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,.08); }
+  &.danger:hover     { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,.08); }
 }
 
 /* Footer tabla */

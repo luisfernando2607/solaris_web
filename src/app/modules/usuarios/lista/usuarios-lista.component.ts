@@ -135,4 +135,37 @@ export class UsuariosListaComponent implements OnInit {
       }
     });
   }
+
+  desbloquear(u: UsuarioListItem): void {
+    this.confirmService.confirm({
+      message:     `¿Seguro que deseas desbloquear a <strong>${u.nombreCompleto}</strong>?`,
+      header:      'Desbloquear usuario',
+      icon:        'pi pi-lock-open',
+      acceptLabel: 'Sí, desbloquear',
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.usuarioService.desbloquear(u.id).subscribe({
+          next:  () => { this.toast.add({ severity:'success', summary:'Desbloqueado', detail:u.nombreCompleto, life:2500 }); this.cargar(); },
+          error: () =>  this.toast.add({ severity:'error',    summary:'Error',         detail:'No se pudo desbloquear', life:3000 })
+        });
+      }
+    });
+  }
+
+  eliminar(u: UsuarioListItem): void {
+    this.confirmService.confirm({
+      message:     `¿Seguro que deseas eliminar a <strong>${u.nombreCompleto}</strong>? Esta acción no se puede deshacer.`,
+      header:      'Eliminar usuario',
+      icon:        'pi pi-trash',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.usuarioService.eliminar(u.id).subscribe({
+          next:  () => { this.toast.add({ severity:'success', summary:'Eliminado', detail:u.nombreCompleto, life:2500 }); this.cargar(); },
+          error: (e) => this.toast.add({ severity:'error',   summary:'Error',    detail:e?.error?.message ?? 'No se pudo eliminar', life:3000 })
+        });
+      }
+    });
+  }
 }

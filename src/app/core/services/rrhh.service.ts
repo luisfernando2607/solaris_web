@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import {
   DepartamentoListItem, Departamento, CrearDepartamentoRequest, ActualizarDepartamentoRequest,
   PuestoListItem, Puesto, CrearPuestoRequest, ActualizarPuestoRequest,
-  EmpleadoListItem, Empleado, CrearEmpleadoRequest, ActualizarEmpleadoRequest,
+  EmpleadoListItem, Empleado, CrearEmpleadoRequest, ActualizarEmpleadoRequest, CuentaSistema,
 } from '../../shared/models/rrhh.models';
 
 import {
@@ -164,19 +164,40 @@ export class RrhhService {
   }
 
   activarEmpleado(id: number): Observable<ApiResponse<void>> {
-    return this.http.patch<ApiResponse<void>>(`${this.base}/empleados/${id}/activar`, {}).pipe(
+    return this.http.post<ApiResponse<void>>(`${this.base}/empleados/${id}/activar`, {}).pipe(
       tap(r => { if (r?.success) this._empleados.update(l => l.map(e => e.id === id ? { ...e, activo: true, estado: 1 } : e)); })
     );
   }
 
   desactivarEmpleado(id: number): Observable<ApiResponse<void>> {
-    return this.http.patch<ApiResponse<void>>(`${this.base}/empleados/${id}/desactivar`, {}).pipe(
-      tap(r => { if (r?.success) this._empleados.update(l => l.map(e => e.id === id ? { ...e, activo: false } : e)); })
+    return this.http.post<ApiResponse<void>>(`${this.base}/empleados/${id}/desactivar`, {}).pipe(
+      tap(r => { if (r?.success) this._empleados.update(l => l.map(e => e.id === id ? { ...e, activo: false, estado: 4 } : e)); })
     );
   }
-  
-  
-  
+
+  eliminarEmpleado(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.base}/empleados/${id}`).pipe(
+      tap(r => { if (r?.success) { this._empleados.update(l => l.filter(e => e.id !== id)); this._totalEmp.update(t => t - 1); } })
+    );
+  }
+
+  // ── Cuenta de sistema ─────────────────────────────────────────────
+  obtenerCuentaEmpleado(id: number): Observable<ApiResponse<CuentaSistema>> {
+    return this.http.get<ApiResponse<CuentaSistema>>(`${this.base}/empleados/${id}/cuenta`);
+  }
+
+  crearCuentaEmpleado(id: number, data: { email: string; nombreUsuario?: string; password: string; rolesIds: number[] }): Observable<ApiResponse<CuentaSistema>> {
+    return this.http.post<ApiResponse<CuentaSistema>>(`${this.base}/empleados/${id}/crear-cuenta`, data);
+  }
+
+  vincularUsuarioEmpleado(id: number, emailOId: string): Observable<ApiResponse<CuentaSistema>> {
+    return this.http.post<ApiResponse<CuentaSistema>>(`${this.base}/empleados/${id}/vincular-usuario`, { emailOId });
+  }
+
+  desvincularUsuarioEmpleado(id: number): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.base}/empleados/${id}/vincular-usuario`);
+  }
+
   // ── Horarios ──────────────────────────────────────────────────────
   private _horarios      = signal<Horario[]>([]);
   private _cargandoHor   = signal(false);

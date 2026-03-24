@@ -34,5 +34,6 @@ export interface ApiResponse<T> {
 }
 
 export interface RefreshTokenRequest {
+  Token: string;
   RefreshToken: string;
 }

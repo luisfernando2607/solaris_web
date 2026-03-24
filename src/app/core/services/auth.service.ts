@@ -79,14 +79,20 @@ export class AuthService {
   }
 
   refreshToken(): Observable<ApiResponse<LoginResponse>> {
+    const token        = localStorage.getItem('solaris_token') ?? '';
     const refreshToken = localStorage.getItem('solaris_refresh_token') ?? '';
     return this.http.post<ApiResponse<LoginResponse>>(
       `${environment.apiUrl}/Auth/refresh-token`,
-      { RefreshToken: refreshToken } as RefreshTokenRequest
+      { Token: token, RefreshToken: refreshToken } as RefreshTokenRequest
     ).pipe(
       tap(res => {
         if (res.success && res.data) {
-          this.guardarSesion(res.data);
+          // El refresh solo devuelve token/refreshToken (sin usuario),
+          // por eso actualizamos solo los tokens y preservamos el usuario actual.
+          const data = res.data as any;
+          localStorage.setItem('solaris_token', data.token);
+          localStorage.setItem('solaris_refresh_token', data.refreshToken);
+          this._token.set(data.token);
         }
       })
     );

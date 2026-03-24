@@ -107,6 +107,22 @@ export class EmpleadosListaComponent implements OnInit {
   cerrarPanel(): void { this.panelVisible.set(false); this.empleadoEdicion.set(null); }
   onGuardado():  void { this.cerrarPanel(); this.cargar(); }
 
+  eliminar(e: EmpleadoListItem): void {
+    this.confirmService.confirm({
+      message:     `¿Seguro que deseas eliminar a <strong>${e.nombreCompleto}</strong>? Esta acción no se puede deshacer.`,
+      header:      'Eliminar empleado',
+      icon:        'pi pi-trash',
+      acceptLabel: 'Sí, eliminar', rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.rrhhService.eliminarEmpleado(e.id).subscribe({
+          next:  () => this.toast.add({ severity: 'success', summary: 'Eliminado', detail: e.nombreCompleto, life: 2500 }),
+          error: (err) => this.toast.add({ severity: 'error', summary: 'Error', detail: err?.error?.message ?? 'No se pudo eliminar', life: 3000 })
+        });
+      }
+    });
+  }
+
   toggleActivo(e: EmpleadoListItem): void {
     const activar = e.estado !== 1;
     this.confirmService.confirm({

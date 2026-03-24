@@ -40,21 +40,18 @@
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="login-form">
 
       <div class="field">
-        <label for="email">Correo electrónico</label>
+        <label for="email">Email o nombre de usuario</label>
         <input
           pInputText
           id="email"
-          type="email"
+          type="text"
           formControlName="email"
-          placeholder="usuario@empresa.com"
+          placeholder="usuario@empresa.com o @jperez"
           [class.ng-invalid]="emailInvalid"
-          autocomplete="email"
+          autocomplete="username"
         />
         @if (emailInvalid) {
-          <small class="error-msg">
-            @if (form.get('email')?.hasError('required')) { El email es requerido }
-            @else if (form.get('email')?.hasError('email')) { Formato de email inválido }
-          </small>
+          <small class="error-msg">Campo requerido</small>
         }
       </div>
 

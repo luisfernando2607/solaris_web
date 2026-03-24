@@ -46,7 +46,7 @@ export class LoginComponent {
   readonly error    = signal<string>('');
 
   form = this.fb.group({
-    email:    ['admin@solaris.local', [Validators.required, Validators.email]],
+    email:    ['admin@solaris.local', [Validators.required]],
     password: ['Admin123!#',          [Validators.required, Validators.minLength(6)]]
   });
 
@@ -92,6 +92,6 @@ export class LoginComponent {
     });
   }
 
-  get emailInvalid()    { const c = this.form.get('email');    return c?.invalid && c?.touched; }
+  get emailInvalid()    { const c = this.form.get('email');    return c?.invalid && c?.touched && c?.hasError('required'); }
   get passwordInvalid() { const c = this.form.get('password'); return c?.invalid && c?.touched; }
 }

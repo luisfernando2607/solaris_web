@@ -194,7 +194,21 @@ export interface EmpleadoListItem {
   modalidadTrabajo: ModalidadTrabajo;
   salarioBase: number;
   estado: EstadoEmpleado;
+  estadoNombre?: string;
   activo: boolean;
+  usuarioId?: number;
+  tieneCuenta?: boolean;
+}
+
+export interface CuentaSistema {
+  usuarioId: number;
+  email: string;
+  nombreUsuario?: string;
+  nombreCompleto: string;
+  estadoNombre: string;
+  activo: boolean;
+  ultimoAcceso?: string;
+  roles: string[];
 }
 
 export interface Empleado extends EmpleadoListItem {

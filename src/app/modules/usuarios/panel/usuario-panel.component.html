@@ -45,7 +45,7 @@
 
         <div class="field">
           <label>Nombres <span class="req">*</span></label>
-          <input pInputText formControlName="nombres" placeholder="Juan Carlos" />
+          <input pInputText formControlName="nombres" placeholder="Juan Carlos" (blur)="sugerirUsername()" />
           @if (invalid('nombres')) {
             <small class="err">Mínimo 2 caracteres</small>
           }
@@ -53,7 +53,7 @@
 
         <div class="field">
           <label>Apellidos <span class="req">*</span></label>
-          <input pInputText formControlName="apellidos" placeholder="Pérez García" />
+          <input pInputText formControlName="apellidos" placeholder="Pérez García" (blur)="sugerirUsername()" />
           @if (invalid('apellidos')) {
             <small class="err">Mínimo 2 caracteres</small>
           }

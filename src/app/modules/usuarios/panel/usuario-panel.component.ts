@@ -58,6 +58,18 @@ export class UsuarioPanelComponent implements OnInit {
     rolIds:        [[] as number[]],
   });
 
+  // Sugerir nombre de usuario cuando cambian nombres/apellidos (solo si el campo está vacío)
+  sugerirUsername(): void {
+    if (this.form.get('nombreUsuario')?.value) return; // ya tiene valor, no sobreescribir
+    const nombres   = (this.form.get('nombres')?.value ?? '').trim();
+    const apellidos = (this.form.get('apellidos')?.value ?? '').trim();
+    if (!nombres || !apellidos) return;
+    const primeraNombre   = nombres.split(' ')[0][0]?.toLowerCase() ?? '';
+    const primerApellido  = apellidos.split(' ')[0]?.toLowerCase() ?? '';
+    if (primeraNombre && primerApellido)
+      this.form.get('nombreUsuario')?.setValue(primeraNombre + primerApellido, { emitEvent: false });
+  }
+
   constructor() {
     effect(() => {
       const u = this.usuario();

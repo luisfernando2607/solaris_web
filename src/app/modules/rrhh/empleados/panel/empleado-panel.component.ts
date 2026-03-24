@@ -7,12 +7,14 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { PasswordModule } from 'primeng/password';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { RrhhService } from '../../../../core/services/rrhh.service';
 import { BancoService } from '../../../../core/services/banco.service';
 import {
-  Empleado,
+  Empleado, CuentaSistema,
   TIPO_IDENTIFICACION_OPTIONS,
   GENERO_OPTIONS,
   ESTADO_CIVIL_OPTIONS,
@@ -30,9 +32,9 @@ import {
   imports: [
     CommonModule, ReactiveFormsModule,
     InputTextModule, InputNumberModule, ButtonModule,
-    SelectModule, TextareaModule, ToastModule,
+    SelectModule, TextareaModule, ToastModule, PasswordModule, ConfirmDialogModule,
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './empleado-panel.component.html',
   styleUrls: ['./empleado-panel.component.scss']
 })
@@ -42,13 +44,30 @@ export class EmpleadoPanelComponent implements OnInit {
   onCerrar   = output<void>();
   onGuardado = output<void>();
 
-  private readonly fb          = inject(FormBuilder);
-  private readonly rrhhService = inject(RrhhService);
-  private readonly bancoService = inject(BancoService);
-  private readonly toast       = inject(MessageService);
+  private readonly fb             = inject(FormBuilder);
+  private readonly rrhhService    = inject(RrhhService);
+  private readonly bancoService   = inject(BancoService);
+  private readonly toast          = inject(MessageService);
+  private readonly confirmService = inject(ConfirmationService);
 
-  readonly cargando = signal(false);
-  readonly error    = signal('');
+  readonly cargando     = signal(false);
+  readonly error        = signal('');
+
+  // ── Cuenta de sistema ─────────────────────────────────────────────
+  readonly cuentaCargando  = signal(false);
+  readonly cuentaError     = signal('');
+  readonly cuenta          = signal<CuentaSistema | null>(null);
+  // 'none' | 'crear' | 'vincular'
+  readonly modoAccion      = signal<'none' | 'crear' | 'vincular'>('none');
+
+  readonly cuentaForm = this.fb.group({
+    email:         ['', [Validators.required, Validators.email]],
+    nombreUsuario: [''],
+    password:      ['', [Validators.required, Validators.minLength(6)]],
+  });
+  readonly vincularForm = this.fb.group({
+    emailOId: ['', Validators.required],
+  });
 
   // Opciones de selects estáticas
   readonly tipoIdOpts      = TIPO_IDENTIFICACION_OPTIONS;
@@ -118,7 +137,23 @@ export class EmpleadoPanelComponent implements OnInit {
   constructor() {
     effect(() => {
       const e = this.empleado();
+      // Reset cuenta state on employee change
+      this.cuenta.set(null);
+      this.cuentaError.set('');
+      this.modoAccion.set('none');
+      this.cuentaForm.reset();
+      this.vincularForm.reset();
+
       if (e) {
+        // Cargar cuenta vinculada si existe
+        if (e.tieneCuenta) {
+          this.cuentaCargando.set(true);
+          this.rrhhService.obtenerCuentaEmpleado(e.id).subscribe({
+            next: r => { if (r?.success) this.cuenta.set(r.data ?? null); this.cuentaCargando.set(false); },
+            error: () => this.cuentaCargando.set(false),
+          });
+        }
+
         this.form.patchValue({
           tipoIdentificacion:   e.tipoIdentificacion,
           numeroIdentificacion: e.numeroIdentificacion,
@@ -245,4 +280,84 @@ export class EmpleadoPanelComponent implements OnInit {
   }
 
   cerrar(): void { this.onCerrar.emit(); }
+
+  // ── Cuenta de sistema ─────────────────────────────────────────────
+  abrirCrearCuenta(): void {
+    const e = this.empleado();
+    if (!e) return;
+    // Pre-rellenar email con el del empleado
+    const emailSugerido = e.emailCorporativo || e.emailPersonal || '';
+    // Sugerir username: primera letra del nombre + primer apellido
+    const primeraNombre  = (e.nombres ?? '').split(' ')[0][0]?.toLowerCase() ?? '';
+    const primerApellido = (e.apellidos ?? '').split(' ')[0]?.toLowerCase() ?? '';
+    const usernameSugerido = primeraNombre && primerApellido ? primeraNombre + primerApellido : '';
+    this.cuentaForm.patchValue({ email: emailSugerido, nombreUsuario: usernameSugerido });
+    this.modoAccion.set('crear');
+  }
+
+  crearCuenta(): void {
+    if (this.cuentaForm.invalid) { this.cuentaForm.markAllAsTouched(); return; }
+    this.cuentaCargando.set(true);
+    this.cuentaError.set('');
+    const v = this.cuentaForm.getRawValue();
+    this.rrhhService.crearCuentaEmpleado(this.empleado()!.id, {
+      email: v.email!, nombreUsuario: v.nombreUsuario || undefined, password: v.password!, rolesIds: []
+    }).subscribe({
+      next: r => {
+        if (r?.success) { this.cuenta.set(r.data ?? null); this.modoAccion.set('none'); this.cuentaForm.reset(); }
+        else this.cuentaError.set(r?.message ?? 'Error al crear cuenta');
+        this.cuentaCargando.set(false);
+      },
+      error: e => { this.cuentaError.set(e?.error?.message ?? 'Error al crear cuenta'); this.cuentaCargando.set(false); },
+    });
+  }
+
+  vincularUsuario(): void {
+    if (this.vincularForm.invalid) { this.vincularForm.markAllAsTouched(); return; }
+    this.cuentaCargando.set(true);
+    this.cuentaError.set('');
+    const emailOId = this.vincularForm.get('emailOId')!.value!;
+    this.rrhhService.vincularUsuarioEmpleado(this.empleado()!.id, emailOId).subscribe({
+      next: r => {
+        if (r?.success) { this.cuenta.set(r.data ?? null); this.modoAccion.set('none'); this.vincularForm.reset(); }
+        else this.cuentaError.set(r?.message ?? 'Error al vincular usuario');
+        this.cuentaCargando.set(false);
+      },
+      error: e => { this.cuentaError.set(e?.error?.message ?? 'Error al vincular usuario'); this.cuentaCargando.set(false); },
+    });
+  }
+
+  desvincularUsuario(): void {
+    const nombre = this.cuenta()?.nombreCompleto ?? 'este usuario';
+    this.confirmService.confirm({
+      message:     `¿Seguro que deseas desvincular la cuenta de <strong>${nombre}</strong> de este empleado?`,
+      header:      'Desvincular cuenta',
+      icon:        'pi pi-user-minus',
+      acceptLabel: 'Sí, desvincular',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.cuentaCargando.set(true);
+        this.cuentaError.set('');
+        this.rrhhService.desvincularUsuarioEmpleado(this.empleado()!.id).subscribe({
+          next: r => {
+            if (r?.success) this.cuenta.set(null);
+            else this.cuentaError.set(r?.message ?? 'Error al desvincular');
+            this.cuentaCargando.set(false);
+          },
+          error: e => { this.cuentaError.set(e?.error?.message ?? 'Error al desvincular'); this.cuentaCargando.set(false); },
+        });
+      }
+    });
+  }
+
+  invalidCuenta(campo: string) {
+    const c = this.cuentaForm.get(campo);
+    return c?.invalid && c?.touched;
+  }
+
+  invalidVincular(campo: string) {
+    const c = this.vincularForm.get(campo);
+    return c?.invalid && c?.touched;
+  }
 }

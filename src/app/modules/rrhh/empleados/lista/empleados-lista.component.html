@@ -87,6 +87,9 @@
                           [pTooltip]="e.estado === 1 ? 'Desactivar' : 'Activar'" tooltipPosition="top">
                     <i [class]="e.estado === 1 ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
                   </button>
+                  <button class="act-btn danger" (click)="eliminar(e)" pTooltip="Eliminar" tooltipPosition="top">
+                    <i class="pi pi-trash"></i>
+                  </button>
                 </div>
               </td>
             </tr>

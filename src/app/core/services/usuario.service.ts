@@ -79,19 +79,23 @@ export class UsuarioService {
   }
 
   activar(id: number): Observable<ApiResponse<any>> {
-    return this.http.patch<ApiResponse<any>>(`${this.url}/${id}/activar`, {});
+    return this.http.post<ApiResponse<any>>(`${this.url}/${id}/activar`, {});
   }
 
   desactivar(id: number): Observable<ApiResponse<any>> {
-    return this.http.patch<ApiResponse<any>>(`${this.url}/${id}/desactivar`, {});
+    return this.http.post<ApiResponse<any>>(`${this.url}/${id}/desactivar`, {});
   }
 
   bloquear(id: number): Observable<ApiResponse<any>> {
-    return this.http.patch<ApiResponse<any>>(`${this.url}/${id}/bloquear`, {});
+    return this.http.post<ApiResponse<any>>(`${this.url}/${id}/bloquear`, {});
+  }
+
+  desbloquear(id: number): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.url}/${id}/desbloquear`, {});
   }
 
   resetearPassword(id: number, nuevaPassword: string): Observable<ApiResponse<any>> {
-    return this.http.patch<ApiResponse<any>>(
+    return this.http.post<ApiResponse<any>>(
       `${this.url}/${id}/resetear-password`,
       { nuevaPassword }
     );

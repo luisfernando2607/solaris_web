@@ -211,9 +211,9 @@
 }
 
 /* Acciones */
-.col-actions { width: 110px; }
+.col-actions, .td-actions, .th-actions { width: 110px; }
 .actions-wrap { display: flex; gap: .35rem; align-items: center; }
-.action-btn {
+.action-btn, .act-btn {
   width: 30px; height: 30px;
   border-radius: 7px; border: 1px solid var(--border);
   background: none; cursor: pointer;
@@ -221,10 +221,12 @@
   font-size: .75rem; transition: all .15s;
   color: var(--text-muted);
 
+  &:hover            { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
   &.edit:hover       { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
   &.deactivate:hover { border-color: #f59e0b; color: #f59e0b; background: rgba(245,158,11,.08); }
   &.activate:hover   { border-color: #10b981; color: #10b981; background: rgba(16,185,129,.08); }
   &.lock:hover       { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,.08); }
+  &.danger:hover     { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,.08); }
 }
 
 /* Footer tabla */
