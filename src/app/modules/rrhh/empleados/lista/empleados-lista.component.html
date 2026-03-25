@@ -58,7 +58,7 @@
         </thead>
         <tbody>
           @for (e of empleadosFiltrados(); track e.id) {
-            <tr>
+            <tr class="row-clickable" (click)="verFicha(e.id)">
               <td>
                 <div class="item-cell">
                   <div class="item-avatar">{{ iniciales(e.nombreCompleto) }}</div>
@@ -78,8 +78,11 @@
                 <p-tag [value]="etiquetaEstado(e.estado)" [severity]="severidadEstado(e.estado)" />
               </td>
               <td><span class="sub-text mono-chip">{{ e.fechaIngreso | date:'dd/MM/yyyy' }}</span></td>
-              <td class="td-actions">
+              <td class="td-actions" (click)="$event.stopPropagation()">
                 <div class="actions-wrap">
+                  <button class="act-btn" (click)="verFicha(e.id)" pTooltip="Ver ficha" tooltipPosition="top">
+                    <i class="pi pi-eye"></i>
+                  </button>
                   <button class="act-btn" (click)="abrirEditar(e.id)" pTooltip="Editar" tooltipPosition="top">
                     <i class="pi pi-pencil"></i>
                   </button>

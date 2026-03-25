@@ -137,11 +137,12 @@ export class EmpleadoPanelComponent implements OnInit, OnChanges {
   constructor() {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (!('empleado' in changes)) return;
+    this.patchearFormulario();
+  }
 
+  private patchearFormulario(): void {
     const e = this.empleado();
 
-    // Resetear estado de cuenta al cambiar empleado
     this.cuenta.set(null);
     this.cuentaError.set('');
     this.modoAccion.set('none');
@@ -149,7 +150,6 @@ export class EmpleadoPanelComponent implements OnInit, OnChanges {
     this.vincularForm.reset();
 
     if (e) {
-      // Cargar cuenta vinculada si existe
       if (e.tieneCuenta) {
         this.cuentaCargando.set(true);
         this.rrhhService.obtenerCuentaEmpleado(e.id).subscribe({
@@ -186,6 +186,9 @@ export class EmpleadoPanelComponent implements OnInit, OnChanges {
         tipoCuenta:           e.tipoCuenta ?? null,
         numeroCuenta:         e.numeroCuenta ?? '',
       });
+      // p-inputnumber no siempre actualiza el form control solo con patchValue
+      this.form.controls['salarioBase'].setValue(e.salarioBase ?? 0);
+      this.form.controls['horasSemanales'].setValue(e.horasSemanales ?? 40);
       this.form.get('numeroIdentificacion')?.disable();
     } else {
       this.form.reset({
@@ -212,6 +215,7 @@ export class EmpleadoPanelComponent implements OnInit, OnChanges {
 
   guardar(): void {
     if (this.form.invalid) { this.form.markAllAsTouched(); return; }
+    this.error.set('');
     this.error.set('');
     this.cargando.set(true);
     const v = this.form.getRawValue();

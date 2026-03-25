@@ -176,6 +176,14 @@
   &:last-child td { border-bottom: none; }
 }
 
+.row-clickable {
+  cursor: pointer;
+  transition: background .12s;
+  &:hover td { background: rgba(59,130,246,.05); }
+  &:last-child td { border-bottom: none; }
+  &:active td { background: rgba(59,130,246,.1); }
+}
+
 /* Celdas especiales */
 .user-cell {
   display: flex;

@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
@@ -33,6 +34,7 @@ export class EmpleadosListaComponent implements OnInit {
   private readonly rrhhService    = inject(RrhhService);
   private readonly toast          = inject(MessageService);
   private readonly confirmService = inject(ConfirmationService);
+  private readonly router         = inject(Router);
 
   readonly empleados    = this.rrhhService.empleados;
   readonly total        = this.rrhhService.total;
@@ -103,6 +105,8 @@ export class EmpleadosListaComponent implements OnInit {
       error: () => this.toast.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cargar el empleado', life: 3000 })
     });
   }
+
+  verFicha(id: number): void { this.router.navigate(['/rrhh/empleados', id]); }
 
   cerrarPanel(): void { this.panelVisible.set(false); this.empleadoEdicion.set(null); }
   onGuardado():  void { this.cerrarPanel(); this.cargar(); }

@@ -1,0 +1,761 @@
+<p-toast position="top-right" />
+
+<div class="ficha-page">
+
+@if (cargando()) {
+  <div class="ficha-loading">
+    <div class="loading-dots"><span></span><span></span><span></span></div>
+    <p>Cargando ficha del empleado...</p>
+  </div>
+} @else if (error()) {
+  <div class="ficha-error">
+    <i class="pi pi-exclamation-circle"></i>
+    <p>{{ error() }}</p>
+    <button class="btn-back" (click)="volver()"><i class="pi pi-arrow-left"></i> Volver</button>
+  </div>
+} @else if (empleado()) {
+  @let e = empleado()!;
+
+  <!-- ── Hero card: cabecera + stats ── -->
+  <div class="ficha-hero">
+
+    <div class="hero-header">
+      <button class="btn-back" (click)="volver()" pTooltip="Volver a empleados" tooltipPosition="right">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <div class="hero-avatar">{{ iniciales(e.nombreCompleto) }}</div>
+      <div class="hero-info">
+        <h1 class="hero-name">{{ e.nombreCompleto }}</h1>
+        <div class="hero-meta">
+          @if (e.puestoNombre) { <span>{{ e.puestoNombre }}</span> }
+          @if (e.departamentoNombre) {
+            <span class="sep">·</span><span>{{ e.departamentoNombre }}</span>
+          }
+          <span class="sep">·</span>
+          <code class="code-chip">{{ e.codigo }}</code>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <p-tag [value]="estadoLabel(e.estado)" [severity]="severidadEstado(e.estado)" />
+        <button class="btn-edit" (click)="abrirEditar()">
+          <i class="pi pi-pencil"></i> Editar
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-label">Ingreso</span>
+        <span class="stat-val mono">{{ e.fechaIngreso | date:'dd/MM/yyyy' }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Salario base</span>
+        <span class="stat-val mono">{{ formatCurrency(e.salarioBase) }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Contrato</span>
+        <span class="stat-val">{{ contratoLabel(e.tipoContrato) }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Modalidad</span>
+        <span class="stat-val">{{ modalidadLabel(e.modalidadTrabajo) }}</span>
+      </div>
+      @if (e.emailCorporativo) {
+        <div class="stat-item">
+          <span class="stat-label">Email corp.</span>
+          <span class="stat-val">{{ e.emailCorporativo }}</span>
+        </div>
+      }
+      @if (e.telefonoCelular) {
+        <div class="stat-item">
+          <span class="stat-label">Celular</span>
+          <span class="stat-val mono">{{ e.telefonoCelular }}</span>
+        </div>
+      }
+    </div>
+
+  </div>
+
+  <!-- ── Tabs ── -->
+  <div class="tab-wrap">
+    <div class="tab-bar">
+      <button class="tab-btn" [class.active]="activeTab() === 'info'"       (click)="setTab('info')">
+        <i class="pi pi-id-card"></i><span>Información</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'horario'"    (click)="setTab('horario')">
+        <i class="pi pi-clock"></i><span>Horario</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'asistencia'" (click)="setTab('asistencia')">
+        <i class="pi pi-calendar-check"></i><span>Asistencia</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'prestamos'"  (click)="setTab('prestamos')">
+        <i class="pi pi-wallet"></i><span>Préstamos</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'nomina'"     (click)="setTab('nomina')">
+        <i class="pi pi-file-edit"></i><span>Nómina</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'historial'"  (click)="setTab('historial')">
+        <i class="pi pi-history"></i><span>Historial</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'vacaciones'" (click)="setTab('vacaciones')">
+        <i class="pi pi-sun"></i><span>Vacaciones</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'evaluaciones'" (click)="setTab('evaluaciones')">
+        <i class="pi pi-star"></i><span>Evaluaciones</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'capacitaciones'" (click)="setTab('capacitaciones')">
+        <i class="pi pi-graduation-cap"></i><span>Capacitaciones</span>
+      </button>
+    </div>
+
+    <!-- ── Contenido de tab ── -->
+    <div class="tab-content">
+
+      <!-- TAB: Información -->
+      @if (activeTab() === 'info') {
+        <div class="info-grid">
+
+          <div class="info-card">
+            <div class="info-card-title"><i class="pi pi-user"></i> Datos personales</div>
+            <div class="info-rows">
+              <div class="info-row">
+                <span class="info-key">Identificación</span>
+                <span class="info-val mono">{{ e.tipoIdentificacion }} · {{ e.numeroIdentificacion }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">Nombre completo</span>
+                <span class="info-val">{{ e.nombres }} {{ e.apellidos }}</span>
+              </div>
+              @if (e.fechaNacimiento) {
+                <div class="info-row">
+                  <span class="info-key">Nacimiento</span>
+                  <span class="info-val mono">{{ e.fechaNacimiento | date:'dd/MM/yyyy' }}</span>
+                </div>
+              }
+              <div class="info-row">
+                <span class="info-key">Género</span>
+                <span class="info-val">{{ generoLabel(e.genero) }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">Estado civil</span>
+                <span class="info-val">{{ civilLabel(e.estadoCivil) }}</span>
+              </div>
+              @if (e.telefonoCelular) {
+                <div class="info-row">
+                  <span class="info-key">Celular</span>
+                  <span class="info-val mono">{{ e.telefonoCelular }}</span>
+                </div>
+              }
+              @if (e.emailPersonal) {
+                <div class="info-row">
+                  <span class="info-key">Email personal</span>
+                  <span class="info-val">{{ e.emailPersonal }}</span>
+                </div>
+              }
+              @if (e.emailCorporativo) {
+                <div class="info-row">
+                  <span class="info-key">Email corp.</span>
+                  <span class="info-val">{{ e.emailCorporativo }}</span>
+                </div>
+              }
+              @if (e.direccion) {
+                <div class="info-row">
+                  <span class="info-key">Dirección</span>
+                  <span class="info-val">{{ e.direccion }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-title"><i class="pi pi-briefcase"></i> Datos laborales</div>
+            <div class="info-rows">
+              <div class="info-row">
+                <span class="info-key">Departamento</span>
+                <span class="info-val">{{ e.departamentoNombre ?? '—' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">Puesto</span>
+                <span class="info-val">{{ e.puestoNombre ?? '—' }}</span>
+              </div>
+              @if (e.jefeDirectoNombre) {
+                <div class="info-row">
+                  <span class="info-key">Jefe directo</span>
+                  <span class="info-val">{{ e.jefeDirectoNombre }}</span>
+                </div>
+              }
+              <div class="info-row">
+                <span class="info-key">Fecha ingreso</span>
+                <span class="info-val mono">{{ e.fechaIngreso | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">Contrato</span>
+                <span class="info-val">{{ contratoLabel(e.tipoContrato) }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">Modalidad</span>
+                <span class="info-val">{{ modalidadLabel(e.modalidadTrabajo) }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">Horas semanales</span>
+                <span class="info-val mono">{{ e.horasSemanales }}h</span>
+              </div>
+              <div class="info-row">
+                <span class="info-key">Salario base</span>
+                <span class="info-val mono">{{ formatCurrency(e.salarioBase) }}</span>
+              </div>
+              @if (e.numeroSeguroSocial) {
+                <div class="info-row">
+                  <span class="info-key">IESS</span>
+                  <span class="info-val mono">{{ e.numeroSeguroSocial }}</span>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card-title"><i class="pi pi-building-columns"></i> Datos bancarios</div>
+            <div class="info-rows">
+              @if (e.bancoNombre) {
+                <div class="info-row">
+                  <span class="info-key">Banco</span>
+                  <span class="info-val">{{ e.bancoNombre }}</span>
+                </div>
+              }
+              @if (e.tipoCuenta) {
+                <div class="info-row">
+                  <span class="info-key">Tipo cuenta</span>
+                  <span class="info-val">{{ e.tipoCuenta === 1 ? 'Ahorros' : 'Corriente' }}</span>
+                </div>
+              }
+              @if (e.numeroCuenta) {
+                <div class="info-row">
+                  <span class="info-key">N° cuenta</span>
+                  <span class="info-val mono">{{ e.numeroCuenta }}</span>
+                </div>
+              }
+              @if (!e.bancoNombre && !e.numeroCuenta) {
+                <div class="info-row empty-row">
+                  <span class="info-val muted">Sin datos bancarios registrados</span>
+                </div>
+              }
+            </div>
+          </div>
+
+        </div>
+      }
+
+      <!-- TAB: Horario -->
+      @if (activeTab() === 'horario') {
+        <div class="tab-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Horario laboral</h3>
+              @if (horarioVigente(); as hv) {
+                <p class="section-sub">Actual: <strong>{{ hv.horarioNombre }}</strong> — desde {{ hv.fechaInicio | date:'dd/MM/yyyy' }}</p>
+              } @else {
+                <p class="section-sub">Sin horario asignado</p>
+              }
+            </div>
+            @if (!modoAsignar()) {
+              <button class="btn-action" (click)="abrirAsignar()">
+                <i class="pi pi-plus"></i> Asignar horario
+              </button>
+            }
+          </div>
+
+          @if (modoAsignar()) {
+            <div class="asignar-form">
+              <div class="asignar-title"><i class="pi pi-calendar-plus"></i> Nueva asignación de horario</div>
+              <div class="asignar-row">
+                <div class="field-inline">
+                  <label>Horario</label>
+                  <p-select [options]="horarioOpts()" [ngModel]="horarioSelId()"
+                    (ngModelChange)="horarioSelId.set($event)"
+                    optionLabel="label" optionValue="value"
+                    placeholder="— Seleccione —" styleClass="w-full" />
+                </div>
+                <div class="field-inline">
+                  <label>Fecha inicio</label>
+                  <input type="date" class="date-input" [ngModel]="fechaAsignar()"
+                    (ngModelChange)="fechaAsignar.set($event)" />
+                </div>
+                <div class="asignar-btns">
+                  <button class="btn-secondary-sm" (click)="modoAsignar.set(false)">
+                    <i class="pi pi-times"></i> Cancelar
+                  </button>
+                  <button class="btn-primary-sm"
+                    [disabled]="!horarioSelId() || !fechaAsignar() || asignando()"
+                    (click)="confirmarAsignar()">
+                    @if (asignando()) { <i class="pi pi-spin pi-spinner"></i> }
+                    @else { <i class="pi pi-check"></i> }
+                    Confirmar
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (cargandoHorario()) {
+            <div class="tab-loading"><i class="pi pi-spin pi-spinner"></i> Cargando...</div>
+          } @else if (historialHorario().length === 0) {
+            <div class="tab-empty"><i class="pi pi-clock"></i><p>No hay asignaciones de horario registradas</p></div>
+          } @else {
+            <div class="horario-list">
+              @for (h of historialHorario(); track h.id) {
+                <div class="horario-item" [class.vigente]="h.vigente">
+                  <div class="horario-icon"><i class="pi pi-clock"></i></div>
+                  <div class="horario-info">
+                    <div class="horario-nombre">{{ h.horarioNombre }}</div>
+                    <div class="horario-fechas mono-text">
+                      Desde {{ h.fechaInicio | date:'dd/MM/yyyy' }}
+                      @if (h.fechaFin) { — hasta {{ h.fechaFin | date:'dd/MM/yyyy' }} }
+                      @else { — Vigente }
+                    </div>
+                  </div>
+                  @if (h.vigente) { <span class="badge-vigente">Actual</span> }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- TAB: Asistencia -->
+      @if (activeTab() === 'asistencia') {
+        <div class="tab-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Registro de asistencia</h3>
+              <p class="section-sub">{{ mesesNombres[mesAsist() - 1] }} {{ annoAsist() }}</p>
+            </div>
+            <div class="month-nav">
+              <button class="btn-nav" (click)="cambiarMesAsist(-1)"><i class="pi pi-chevron-left"></i></button>
+              <span class="month-label">{{ mesesNombres[mesAsist() - 1] }} {{ annoAsist() }}</span>
+              <button class="btn-nav" (click)="cambiarMesAsist(1)"><i class="pi pi-chevron-right"></i></button>
+            </div>
+          </div>
+
+          @if (cargandoAsist()) {
+            <div class="tab-loading"><i class="pi pi-spin pi-spinner"></i> Cargando...</div>
+          } @else if (asistencias().length === 0) {
+            <div class="tab-empty">
+              <i class="pi pi-calendar"></i>
+              <p>No hay registros de asistencia para {{ mesesNombres[mesAsist() - 1] }} {{ annoAsist() }}</p>
+            </div>
+          } @else {
+            <div class="asist-summary">
+              <div class="asist-stat ok"><span class="asist-stat-val">{{ asistencias().length }}</span><span class="asist-stat-lbl">Total días</span></div>
+              <div class="asist-stat ok"><span class="asist-stat-val">{{ countByEstado(1) }}</span><span class="asist-stat-lbl">A tiempo</span></div>
+              <div class="asist-stat tardanza"><span class="asist-stat-val">{{ countByEstado(2) }}</span><span class="asist-stat-lbl">Con tardanza</span></div>
+              <div class="asist-stat ausencia"><span class="asist-stat-val">{{ countByEstado(3) }}</span><span class="asist-stat-lbl">Ausencias</span></div>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Entrada</th>
+                    <th>Salida</th>
+                    <th>Horas trabajadas</th>
+                    <th>Horas extras</th>
+                    <th>Tardanza (min)</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (a of asistencias(); track a.id) {
+                    <tr>
+                      <td><code class="mono-chip-sm">{{ a.fecha | date:'EEE dd/MM' }}</code></td>
+                      <td><code class="mono-chip-sm">{{ a.horaEntrada ? (a.horaEntrada | date:'HH:mm') : '—' }}</code></td>
+                      <td><code class="mono-chip-sm">{{ a.horaSalida ? (a.horaSalida | date:'HH:mm') : '—' }}</code></td>
+                      <td class="center"><span class="mono-chip-sm">{{ a.horasTrabajadas != null ? (a.horasTrabajadas + 'h') : '—' }}</span></td>
+                      <td class="center">
+                        @if (a.horasExtras > 0) { <span class="badge-extra">+{{ a.horasExtras }}h</span> }
+                        @else { <span class="text-muted">—</span> }
+                      </td>
+                      <td class="center">
+                        @if (a.minutosTardanza > 0) { <span class="badge-tardanza">{{ a.minutosTardanza }}min</span> }
+                        @else { <span class="text-muted">—</span> }
+                      </td>
+                      <td>
+                        <span class="asist-estado" [class]="asistenciaEstadoColor(a.estado)">
+                          {{ a.estadoNombre }}
+                        </span>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- TAB: Préstamos -->
+      @if (activeTab() === 'prestamos') {
+        <div class="tab-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Préstamos</h3>
+              <p class="section-sub">Historial de préstamos del empleado</p>
+            </div>
+          </div>
+
+          @if (cargandoPrest()) {
+            <div class="tab-loading"><i class="pi pi-spin pi-spinner"></i> Cargando...</div>
+          } @else if (prestamos().length === 0) {
+            <div class="tab-empty"><i class="pi pi-wallet"></i><p>No hay préstamos registrados</p></div>
+          } @else {
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>N° Préstamo</th>
+                    <th>Tipo</th>
+                    <th>Solicitado</th>
+                    <th>Aprobado</th>
+                    <th>Cuotas</th>
+                    <th>Saldo pendiente</th>
+                    <th>Fecha solicitud</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (p of prestamos(); track p.id) {
+                    <tr>
+                      <td><code class="mono-chip-sm">{{ p.numero }}</code></td>
+                      <td>{{ prestamoTipoLabel(p.tipo) }}</td>
+                      <td><code class="mono-chip-sm">{{ formatCurrency(p.montoSolicitado) }}</code></td>
+                      <td><code class="mono-chip-sm">{{ formatCurrency(p.montoAprobado) }}</code></td>
+                      <td class="center">{{ p.numeroCuotas }}</td>
+                      <td><code class="mono-chip-sm">{{ formatCurrency(p.saldoPendiente) }}</code></td>
+                      <td>{{ p.fechaSolicitud | date:'dd/MM/yyyy' }}</td>
+                      <td>
+                        <p-tag [value]="prestamoEstadoLabel(p.estado)" [severity]="severidadPrestamo(p.estado)" />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- TAB: Nómina -->
+      @if (activeTab() === 'nomina') {
+        <div class="tab-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Roles de pago</h3>
+              <p class="section-sub">Historial de nómina procesada para el empleado</p>
+            </div>
+          </div>
+
+          @if (cargandoNomina()) {
+            <div class="tab-loading"><i class="pi pi-spin pi-spinner"></i> Cargando...</div>
+          } @else if (rolesNomina().length === 0) {
+            <div class="tab-empty">
+              <i class="pi pi-file-edit"></i>
+              <p>No hay roles de pago procesados para este empleado</p>
+            </div>
+          } @else {
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>N° Rol</th>
+                    <th>Período</th>
+                    <th>Fecha pago</th>
+                    <th>Total ingresos</th>
+                    <th>Total descuentos</th>
+                    <th>Aporte patronal</th>
+                    <th>Neto a pagar</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (r of rolesNomina(); track r.id) {
+                    <tr>
+                      <td><code class="mono-chip-sm">{{ r.numeroRol }}</code></td>
+                      <td>{{ r.periodoDescripcion }}</td>
+                      <td>{{ r.fechaPago ? (r.fechaPago | date:'dd/MM/yyyy') : '—' }}</td>
+                      <td><code class="mono-chip-sm text-success">{{ formatCurrency(r.totalIngresos) }}</code></td>
+                      <td><code class="mono-chip-sm text-danger">{{ formatCurrency(r.totalDescuentos) }}</code></td>
+                      <td><code class="mono-chip-sm text-info">{{ formatCurrency(r.aportePatronal) }}</code></td>
+                      <td><code class="mono-chip-sm text-bold">{{ formatCurrency(r.netoPagable) }}</code></td>
+                      <td>
+                        <p-tag [value]="r.estadoNombre" [severity]="nominaEstadoSeverity(r.estado)" />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- TAB: Historial laboral -->
+      @if (activeTab() === 'historial') {
+        <div class="tab-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Historial laboral</h3>
+              <p class="section-sub">Cambios de puesto, departamento y salario</p>
+            </div>
+          </div>
+
+          @if (cargandoHistorial()) {
+            <div class="tab-loading"><i class="pi pi-spin pi-spinner"></i> Cargando...</div>
+          } @else if (historialLaboral().length === 0) {
+            <div class="tab-empty"><i class="pi pi-history"></i><p>Sin cambios registrados en el historial</p></div>
+          } @else {
+            <div class="timeline">
+              @for (h of historialLaboral(); track h.id) {
+                <div class="timeline-item">
+                  <div class="timeline-left">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-line"></div>
+                  </div>
+                  <div class="timeline-body">
+                    <div class="timeline-head">
+                      <span class="timeline-tipo">{{ h.tipoCambioNombre }}</span>
+                      <span class="timeline-fecha mono-text">{{ h.fechaEfectiva | date:'dd/MM/yyyy' }}</span>
+                    </div>
+                    <div class="timeline-detail">
+                      @if (h.departamentoAnterior || h.departamentoNuevo) {
+                        <div class="change-row">
+                          <span class="change-key">Departamento</span>
+                          <span class="change-before">{{ h.departamentoAnterior ?? '—' }}</span>
+                          <i class="pi pi-arrow-right change-arrow"></i>
+                          <span class="change-after">{{ h.departamentoNuevo ?? '—' }}</span>
+                        </div>
+                      }
+                      @if (h.puestoAnterior || h.puestoNuevo) {
+                        <div class="change-row">
+                          <span class="change-key">Puesto</span>
+                          <span class="change-before">{{ h.puestoAnterior ?? '—' }}</span>
+                          <i class="pi pi-arrow-right change-arrow"></i>
+                          <span class="change-after">{{ h.puestoNuevo ?? '—' }}</span>
+                        </div>
+                      }
+                      @if (h.salarioAnterior != null || h.salarioNuevo != null) {
+                        <div class="change-row">
+                          <span class="change-key">Salario</span>
+                          <span class="change-before">{{ formatCurrency(h.salarioAnterior) }}</span>
+                          <i class="pi pi-arrow-right change-arrow"></i>
+                          <span class="change-after">{{ formatCurrency(h.salarioNuevo) }}</span>
+                        </div>
+                      }
+                      @if (h.motivo) {
+                        <div class="change-motivo">{{ h.motivo }}</div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- TAB: Vacaciones -->
+      @if (activeTab() === 'vacaciones') {
+        <div class="tab-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Saldo de vacaciones</h3>
+              <p class="section-sub">Balance acumulado por año</p>
+            </div>
+            <div class="anno-nav">
+              <button class="btn-nav" (click)="cambiarAnnoVac(-1)"><i class="pi pi-chevron-left"></i></button>
+              <span class="anno-label mono-text">{{ annoVac() }}</span>
+              <button class="btn-nav" (click)="cambiarAnnoVac(1)"><i class="pi pi-chevron-right"></i></button>
+            </div>
+          </div>
+
+          @if (cargandoVac()) {
+            <div class="tab-loading"><i class="pi pi-spin pi-spinner"></i> Cargando...</div>
+          } @else if (!vacaciones()) {
+            <div class="tab-empty">
+              <i class="pi pi-sun"></i>
+              <p>No hay información de vacaciones para {{ annoVac() }}</p>
+            </div>
+          } @else {
+            <div class="vac-cards">
+              <div class="vac-card earned">
+                <div class="vac-icon"><i class="pi pi-plus-circle"></i></div>
+                <div class="vac-num">{{ vacaciones()!.diasGanados }}</div>
+                <div class="vac-label">Días ganados</div>
+              </div>
+              <div class="vac-card taken">
+                <div class="vac-icon"><i class="pi pi-minus-circle"></i></div>
+                <div class="vac-num">{{ vacaciones()!.diasTomados }}</div>
+                <div class="vac-label">Días tomados</div>
+              </div>
+              <div class="vac-card pending">
+                <div class="vac-icon"><i class="pi pi-calendar"></i></div>
+                <div class="vac-num">{{ vacaciones()!.diasPendientes }}</div>
+                <div class="vac-label">Días pendientes</div>
+              </div>
+              <div class="vac-card expired">
+                <div class="vac-icon"><i class="pi pi-exclamation-circle"></i></div>
+                <div class="vac-num">{{ vacaciones()!.diasVencidos }}</div>
+                <div class="vac-label">Días vencidos</div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- TAB: Evaluaciones -->
+      @if (activeTab() === 'evaluaciones') {
+        <div class="tab-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Evaluaciones de desempeño</h3>
+              <p class="section-sub">Historial de evaluaciones anuales del empleado</p>
+            </div>
+          </div>
+
+          @if (cargandoEval()) {
+            <div class="tab-loading"><i class="pi pi-spin pi-spinner"></i> Cargando...</div>
+          } @else if (evaluaciones().length === 0) {
+            <div class="tab-empty">
+              <i class="pi pi-star"></i>
+              <p>No hay evaluaciones registradas para este empleado</p>
+            </div>
+          } @else {
+            <div class="eval-list">
+              @for (ev of evaluaciones(); track ev.id) {
+                <div class="eval-card">
+                  <div class="eval-header">
+                    <div class="eval-proceso">
+                      <span class="eval-nombre">{{ ev.procesoNombre }}</span>
+                      @if (ev.periodo) {
+                        <span class="eval-periodo">{{ ev.periodo }}</span>
+                      }
+                    </div>
+                    <p-tag [value]="ev.estadoNombre" [severity]="evalEstadoSeverity(ev.estado)" />
+                  </div>
+                  <div class="eval-body">
+                    <div class="eval-stat">
+                      <span class="eval-stat-label">Año</span>
+                      <span class="eval-stat-val mono">{{ ev.anno }}</span>
+                    </div>
+                    <div class="eval-stat">
+                      <span class="eval-stat-label">Puntuación</span>
+                      <span class="eval-stat-val mono">
+                        {{ ev.puntuacionTotal != null ? (ev.puntuacionTotal | number:'1.1-1') : '—' }}
+                      </span>
+                    </div>
+                    @if (ev.fechaCompletado) {
+                      <div class="eval-stat">
+                        <span class="eval-stat-label">Completada</span>
+                        <span class="eval-stat-val mono">{{ ev.fechaCompletado | date:'dd/MM/yyyy' }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- TAB: Capacitaciones -->
+      @if (activeTab() === 'capacitaciones') {
+        <div class="tab-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Capacitaciones</h3>
+              <p class="section-sub">Cursos y capacitaciones en las que participó el empleado</p>
+            </div>
+          </div>
+
+          @if (cargandoCap()) {
+            <div class="tab-loading"><i class="pi pi-spin pi-spinner"></i> Cargando...</div>
+          } @else if (capacitaciones().length === 0) {
+            <div class="tab-empty">
+              <i class="pi pi-graduation-cap"></i>
+              <p>No hay capacitaciones registradas para este empleado</p>
+            </div>
+          } @else {
+            <div class="cap-list">
+              @for (cap of capacitaciones(); track cap.capacitacionId) {
+                <div class="cap-card">
+                  <div class="cap-header">
+                    <div class="cap-info">
+                      <span class="cap-nombre">{{ cap.nombre }}</span>
+                      <span class="cap-tipo">{{ cap.tipoNombre }}</span>
+                    </div>
+                    <p-tag [value]="cap.estadoNombreParticipante" [severity]="capEstadoSeverity(cap.estadoParticipante)" />
+                  </div>
+                  <div class="cap-body">
+                    <div class="cap-stat">
+                      <span class="cap-stat-label">Período</span>
+                      <span class="cap-stat-val mono">
+                        {{ cap.fechaInicio | date:'dd/MM/yyyy' }} — {{ cap.fechaFin | date:'dd/MM/yyyy' }}
+                      </span>
+                    </div>
+                    @if (cap.horasDuracion) {
+                      <div class="cap-stat">
+                        <span class="cap-stat-label">Horas</span>
+                        <span class="cap-stat-val mono">{{ cap.horasDuracion }}</span>
+                      </div>
+                    }
+                    @if (cap.calificacion != null) {
+                      <div class="cap-stat">
+                        <span class="cap-stat-label">Calificación</span>
+                        <span class="cap-stat-val mono">{{ cap.calificacion | number:'1.1-1' }}</span>
+                      </div>
+                    }
+                    @if (cap.asistenciaPorcentaje != null) {
+                      <div class="cap-stat">
+                        <span class="cap-stat-label">Asistencia</span>
+                        <span class="cap-stat-val mono">{{ cap.asistenciaPorcentaje }}%</span>
+                      </div>
+                    }
+                    @if (cap.instructor) {
+                      <div class="cap-stat">
+                        <span class="cap-stat-label">Instructor</span>
+                        <span class="cap-stat-val">{{ cap.instructor }}</span>
+                      </div>
+                    }
+                    @if (cap.institucion) {
+                      <div class="cap-stat">
+                        <span class="cap-stat-label">Institución</span>
+                        <span class="cap-stat-val">{{ cap.institucion }}</span>
+                      </div>
+                    }
+                  </div>
+                  @if (cap.certificadoUrl) {
+                    <div class="cap-footer">
+                      <a [href]="cap.certificadoUrl" target="_blank" class="btn-certificado">
+                        <i class="pi pi-file-pdf"></i> Ver certificado
+                      </a>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  </div>
+
+}
+
+</div><!-- /ficha-page -->
+
+<!-- Panel de edición -->
+<app-empleado-panel
+  [visible]="panelVisible()"
+  [empleado]="empleado()"
+  (onCerrar)="cerrarPanel()"
+  (onGuardado)="onGuardado()"
+/>

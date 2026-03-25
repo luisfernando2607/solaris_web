@@ -445,7 +445,7 @@ body {
 .side-panel {
   position: fixed;
   top: 0;
-  right: -440px;
+  right: 0;
   width: 440px;
   height: 100vh;
   background: var(--surface);
@@ -453,10 +453,11 @@ body {
   display: flex;
   flex-direction: column;
   z-index: 1000;
-  transition: right .3s cubic-bezier(.4,0,.2,1), background .3s, border-color .3s;
+  transform: translateX(100%);
+  transition: transform .3s cubic-bezier(.4,0,.2,1), background .3s, border-color .3s;
   box-shadow: -8px 0 32px var(--shadow);
 
-  &.open { right: 0; }
+  &.open { transform: translateX(0); }
 }
 
 .panel-header {

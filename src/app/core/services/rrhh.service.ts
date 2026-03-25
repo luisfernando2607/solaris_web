@@ -15,10 +15,12 @@ import {
   Prestamo, CrearPrestamoRequest,
   PlantillaEvaluacion, CrearPlantillaRequest,
   EvaluacionProceso,
-  Capacitacion, CrearCapacitacionRequest,
+  Capacitacion, CrearCapacitacionRequest, CapacitacionEmpleado,
+  EvaluacionResumen,
   RequisicionPersonal, CrearRequisicionRequest,
   Candidato, CrearCandidatoRequest,
   ProcesoSeleccion,
+  EmpleadoHistorial, EmpleadoHorario, SaldoVacaciones, Asistencia, EmpleadoRolPago,
 } from '../../shared/models/rrhh.models';
 
 interface ApiResponse<T> { success: boolean; data: T; message: string; total?: number; }
@@ -407,6 +409,14 @@ export class RrhhService {
     );
   }
 
+  obtenerCapacitacionesEmpleado(empleadoId: number): Observable<ApiResponse<CapacitacionEmpleado[]>> {
+    return this.http.get<ApiResponse<CapacitacionEmpleado[]>>(`${this.base}/empleados/${empleadoId}/capacitaciones`);
+  }
+
+  obtenerEvaluacionesEmpleado(empleadoId: number): Observable<ApiResponse<EvaluacionResumen[]>> {
+    return this.http.get<ApiResponse<EvaluacionResumen[]>>(`${this.base}/empleados/${empleadoId}/evaluaciones`);
+  }
+
   // ── Requisiciones ─────────────────────────────────────────────────
   private _requisiciones   = signal<RequisicionPersonal[]>([]);
   private _cargandoReq     = signal(false);
@@ -463,6 +473,35 @@ export class RrhhService {
     return this.http.delete<ApiResponse<void>>(`${this.base}/candidatos/${id}`).pipe(
       tap(r => { if (r?.success) this._candidatos.update(l => l.filter(c => c.id !== id)); })
     );
+  }
+
+  // ── Ficha empleado — endpoints por empleado ───────────────────
+  obtenerHistorialEmpleado(id: number): Observable<ApiResponse<EmpleadoHistorial[]>> {
+    return this.http.get<ApiResponse<EmpleadoHistorial[]>>(`${this.base}/empleados/${id}/historial`);
+  }
+
+  obtenerHorarioEmpleado(id: number): Observable<ApiResponse<EmpleadoHorario[]>> {
+    return this.http.get<ApiResponse<EmpleadoHorario[]>>(`${this.base}/empleados/${id}/horario`);
+  }
+
+  asignarHorarioEmpleado(id: number, req: { horarioId: number; fechaInicio: string; motivo?: string }): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.base}/empleados/${id}/horario`, req);
+  }
+
+  obtenerPrestamosEmpleado(id: number): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.base}/empleados/${id}/prestamos`);
+  }
+
+  obtenerVacacionesEmpleado(id: number, anno: number): Observable<ApiResponse<SaldoVacaciones>> {
+    return this.http.get<ApiResponse<SaldoVacaciones>>(`${this.base}/empleados/${id}/vacaciones/${anno}`);
+  }
+
+  obtenerAsistenciaEmpleado(id: number, anno: number, mes: number): Observable<ApiResponse<Asistencia[]>> {
+    return this.http.get<ApiResponse<Asistencia[]>>(`${this.base}/asistencia/empleado/${id}?anno=${anno}&mes=${mes}`);
+  }
+
+  obtenerRolesPagoEmpleado(id: number): Observable<ApiResponse<EmpleadoRolPago[]>> {
+    return this.http.get<ApiResponse<EmpleadoRolPago[]>>(`${this.base}/empleados/${id}/roles-pago`);
   }
 
   // ── Procesos de Selección ─────────────────────────────────────────

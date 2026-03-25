@@ -12,6 +12,11 @@ export const RRHH_ROUTES: Routes = [
       import('./empleados/lista/empleados-lista.component').then(m => m.EmpleadosListaComponent)
   },
   {
+    path: 'empleados/:id',
+    loadComponent: () =>
+      import('./empleados/ficha/empleado-ficha.component').then(m => m.EmpleadoFichaComponent)
+  },
+  {
     path: 'departamentos',
     loadComponent: () =>
       import('./departamentos/lista/departamentos-lista.component').then(m => m.DepartamentosListaComponent)

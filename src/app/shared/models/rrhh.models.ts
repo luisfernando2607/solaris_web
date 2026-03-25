@@ -561,6 +561,37 @@ export interface CrearCapacitacionRequest {
   cupos?: number;
 }
 
+export interface CapacitacionEmpleado {
+  capacitacionId: number;
+  codigo: string;
+  nombre: string;
+  tipo: number;
+  tipoNombre: string;
+  fechaInicio: string;
+  fechaFin: string;
+  horasDuracion?: number;
+  instructor?: string;
+  institucion?: string;
+  estadoParticipante: number;
+  estadoNombreParticipante: string;
+  asistenciaPorcentaje?: number;
+  calificacion?: number;
+  certificadoUrl?: string;
+  fechaCertificado?: string;
+}
+
+export interface EvaluacionResumen {
+  id: number;
+  procesoId: number;
+  procesoNombre: string;
+  anno: number;
+  periodo?: string;
+  puntuacionTotal?: number;
+  estado: number;
+  estadoNombre: string;
+  fechaCompletado?: string;
+}
+
 // ─── Selección ────────────────────────────────────────────────────────
 
 export interface RequisicionPersonal {
@@ -633,4 +664,72 @@ export interface ProcesoSeleccion {
   fechaCierre?: string;
   estado: number;
   observaciones?: string;
+}
+
+// ─── Ficha de empleado — datos adicionales ────────────────────────────────────
+
+export interface EmpleadoHistorial {
+  id: number;
+  tipoCambio: number;
+  tipoCambioNombre: string;
+  fechaEfectiva: string;
+  departamentoAnterior?: string;
+  puestoAnterior?: string;
+  salarioAnterior?: number;
+  departamentoNuevo?: string;
+  puestoNuevo?: string;
+  salarioNuevo?: number;
+  motivo?: string;
+  observaciones?: string;
+  fechaCreacion: string;
+}
+
+export interface EmpleadoHorario {
+  id: number;
+  empleadoId: number;
+  horarioId: number;
+  horarioNombre: string;
+  fechaInicio: string;
+  fechaFin?: string;
+  vigente: boolean;
+}
+
+export interface SaldoVacaciones {
+  empleadoId: number;
+  empleadoNombre: string;
+  anno: number;
+  diasGanados: number;
+  diasTomados: number;
+  diasPendientes: number;
+  diasVencidos: number;
+}
+
+export interface Asistencia {
+  id: number;
+  empleadoId: number;
+  empleadoNombre: string;
+  fecha: string;
+  horaEntrada?: string;
+  horaSalida?: string;
+  horasTrabajadas?: number;
+  horasExtras: number;
+  minutosTardanza: number;
+  estado: number;
+  estadoNombre: string;
+  tipoAusenciaNombre?: string;
+  justificacion?: string;
+}
+
+export interface EmpleadoRolPago {
+  id: number;
+  rolPagoId: number;
+  numeroRol: string;
+  periodoDescripcion: string;
+  fechaPago?: string;
+  totalIngresos: number;
+  totalDescuentos: number;
+  netoPagable: number;
+  aportePatronal: number;
+  estado: number;
+  estadoNombre: string;
 }

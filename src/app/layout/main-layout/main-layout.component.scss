@@ -1,6 +1,7 @@
 .layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: var(--bg);
   transition: background .3s;
 }
@@ -11,4 +12,16 @@
 .layout-content {
   flex: 1; padding: 1.5rem; overflow-y: auto;
   background: var(--bg); transition: background .3s;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+
+  &::-webkit-scrollbar        { width: 5px; }
+  &::-webkit-scrollbar-track  { background: transparent; }
+  &::-webkit-scrollbar-thumb  {
+    background: var(--border);
+    border-radius: 99px;
+    transition: background .2s;
+  }
+  &::-webkit-scrollbar-thumb:hover { background: var(--primary); }
 }
